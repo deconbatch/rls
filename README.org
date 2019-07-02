@@ -1,0 +1,58 @@
+;; -*- truncate-lines: nil; -*-
+#+STARTUP: overview
+#+STARTUP: hidestars
+#+SEQ_TODO: TODO(t) STARTED(s) WAITING(w) | DONE(d) CANCELLED(c) DEFERRED(f)
+#+PROPERTY: Effort_ALL 0 0:10 0:20 0:30 1:00 2:00 3:00 4:00 8:00
+#+COLUMNS: %50ITEM(Details) %TAGS(Context) %7TODO(To Do) %5Effort(Time){:} %6CLOCKSUM{Total}
+#+OPTIONS: ^:nil
+#+OPTIONS: ^:{}
+
+* スケジューリング
+** 要件整理
+   - `ls`コマンドを作成
+     - オプションとして、最低限 `-a`, `-l`, `-r`を実装。`-al`や`-alr`などのように、組み合わされても使えるように。
+   - 言語は最新版のRuby、あるいは、最新版のPHP
+   - GitHub上のリポジトリとして、コードを提出
+   - 納期 7月12日（金）17:00
+** スケジュール
+*** 要件整理
+*** 必要となる要素の洗い出し
+*** 開発環境構築
+**** GNOME Boxes 上に構築
+**** 最新版のRuby、あるいは、最新版のPHP
+**** git
+**** GitHub
+     - 既存アカウントを使用
+*** 開発
+*** ドキュメント整理
+*** 提出
+* 準備
+** 必要となる要素の洗い出し
+*** 最新版のRuby
+    - 19/07/01 現在 Ruby 2.6.3
+*** 最新版のPHP
+    - 19/07/01 現在 PHP 7.3.6
+*** Ruby/PHP 複数バージョン混在環境の管理方法
+    - 開発中にさらなる最新バージョンがリリースされた場合に必要
+    - 必要となる可能性低
+*** Ruby/PHP 実行方法
+    - インタプリタにソース読ませるのではなく、単体のコマンドとして実行する方法
+    - シェルスクリプトではダメ？
+    - シーバンで可
+      - #!/usr/bin/env ruby
+*** オプション読み込みの方法
+    - Ruby
+      - ARGV[]
+*** 出力整形の方法
+    - Ruby
+      - strftime()
+      - format()
+*** 出力に色を付ける方法
+    - ターミナルの問題。エスケープ文字出力で可能か？
+*** ファイル属性の取得方法
+    - Ruby
+      - File.stat()
+*** Ruby/PHP でオプション受けてそのまま ls に渡せばいいんじゃ？
+    - そういう話じゃない
+** テスト方法
+   - ls の出力と作成プログラムの出力の diff で確認

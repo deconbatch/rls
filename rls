@@ -1,0 +1,125 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+
+# path にワイルドカードがあったときの対応
+# path が指定されなかった場合はカレントディレクトリの表示
+# path が存在しなかったらエラー表示
+
+
+
+
+def max_indexes(lengths)
+  # len の最大値を求め、要素の len が最大値と同じインデックスを配列に入れていく←最大長のファイル名のインデックス
+  # lengths に要素が一つでもある限り return null はあり得ない
+  max_len = lengths.max
+  indexes = []
+  lengths.each_with_index do |len, i|
+      if (len == max_len)
+        indexes << i
+      end
+  end
+  return indexes
+end
+
+# ターミナルの幅と最大長のファイル名を元に計算して出力
+#  空白は最小 2文字
+col_margin = 2
+screen_width = 23
+files = []
+
+# file name generator
+10.times do |i|
+files << "oioi" + rand(15).to_i.to_s
+end
+
+num_files = files.length
+lengths = files.map{|file| file.to_s.length}
+
+maxlen_indexs = max_indexes(lengths)
+
+# 状況表示
+for file in files
+puts file
+end
+for idx in maxlen_indexs
+  p idx
+end
+
+# カラム数決定ロジック
+idx = maxlen_indexs[0] # まずは一個でロジック考える←複数に発展させて関数化
+
+col_min = num_files
+col_max = 0
+
+(0..idx).each do |start_idx| # 可能性として 0 から idx までが開始となり得る
+  p "start", start_idx
+  row_length = 0
+  cols = 0
+  (start_idx..num_files-1).each do |i|  # 可能性として 0 から num_files-1 までが一行に収まる場合があり得る
+    row_length += lengths[i] + col_margin
+    cols += 1
+    if (row_length >= screen_width)
+      if (i >= idx)
+        if (cols > col_max)
+          col_max = cols.dup
+        end
+        if (cols < col_min)
+          col_min = cols.dup
+        end
+        p "width", screen_width
+        p "rowlen", row_length
+        p "cols", cols
+      end
+      break
+    end
+  end
+end
+
+p "max", col_max
+p "min", col_min
+
+
+
+
+def args_parse
+  # オプションをパース
+  #  a r l のみ残すという処理は要らない、同じものが複数あってもかまわない
+  #  一つの文字列に入れておいて存在するか？で判定
+  # パスをパース
+  #  配列に格納、単純にソートするだけでは ls と同じにならない！ファイル、ディレクトリの順では？
+  #   ファイルの配列とディレクトリの配列に分けては？
+
+  options = ""
+  paths   = []
+  for arg in ARGV
+    if arg.slice(0, 1) == '-'
+      options += arg
+    else
+      paths << arg
+    end
+  end 
+
+  p options
+  for path in paths.sort
+    p path
+  end
+
+end
+
+def get_filelist 
+  # path のファイル一覧取得して配列に格納
+  # path が存在しなかったらエラー表示しなければならないが？
+  files = Dir.entries('.')
+
+  # オプションに a が無ければ ^\.* を配列から削除
+  # オプションに r があれば配列を逆順ソート
+  # オプションに l がなければターミナルの幅と最大長のファイル名を元に計算して出力
+  # オプションに l があればファイル属性を取得して整形して出力
+
+  for item in files.sort {|a, b| b <=> a }
+    puts item
+  end
+
+  p format("%0*d",8,123456)
+
+end

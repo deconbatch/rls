@@ -9,13 +9,13 @@ def args_parse
 
 
   for arg in ARGV
-    if (arg.to_s == '--')
+    if (arg.to_s == "--")
       end_option = true
       next
     end
 
     if (!end_option)
-      if (arg.slice(0, 1) == '-' && arg.length > 1)
+      if (arg.slice(0, 1) == "-" && arg.length > 1)
         options += arg
       else
         paths << arg
@@ -25,6 +25,7 @@ def args_parse
     end
   end
 
+  paths << "./" if (paths.length == 0)
   return options, paths
 
 end
@@ -81,7 +82,7 @@ def print_column(files)
 
   # パイプやリダイレクトなら行数はファイル数、そうでなければ画面幅で行数計算
   no_row = files.length
-  if STDOUT.isatty
+  if (STDOUT.isatty)
     # margin_base で計算してちゃダメでは？ ←最大長のファイルの行もテストするから大丈夫なはず                                                   
     no_row = calc_rownum(files, screen_width, margin_base)
   end
@@ -122,45 +123,239 @@ end
 
 
 # ----------------------------------------------------------------------
-options, path_ary = args_parse
-
-#p options
-#p path_ary
-
-#files = Dir.entries(path_ary[0])
-#files = Dir.glob(path_ary[0])
-
+def get_files(path_ary)
 files = []
 dirs  = []
+errors = []
 path_ary.each do |path|
-  if (FileTest.file? path)
+
+=begin
+  if (!FileTest.exist? path)
+    puts "ls: cannot access " + path.to_s + ": No such file or directory"
+    break
+  end
+
+  if (!FileTest.readable? path)
+    puts "ls: cannot access " + path.to_s + ": You don't have permission"
+    break
+  end
+
+  if (pname.file?)
     files << path
-  elsif (FileTest.directory? path)
+  elsif (pname.directory?)
     dirs << [path, Dir.entries(path)]
   else
     puts "ls: cannot access " + path.to_s + ": No such file or directory"
   end
+
+=end
+
+# https://www.ibm.com/developerworks/jp/linux/library/l-lpic1-104-5/index.html
+# ディレクトリーの場合の読み取り権限は、読み取り権限を持つユーザーがディレクトリーの内容を一覧表示することを許可します。
+# 実行権限は、ユーザーがディレクトリーに入って任意のサブディレクトリーにアクセスすることを許可します。
+# ディレクトリーに対する実行権限が与えられていなければ、ディレクトリー内のファイルシステム・オブジェクトにアクセスすることはできません。ディレクトリーに対する読み取り権限が与えられていない場合、ディレクトリー内のファイルシステム・オブジェクトはディレクトリー・リストに表示されませんが、それでもディスク上でのオブジェクトのフル・パスを知っている限りは、オブジェクトにアクセスすることができます。
+
+# path を / で区切る→ items
+# 最下位がファイルかディレクトリか検査？
+# items を上位から順に処理
+#  ファイルだったら存在チェック A
+#  ディレクトリだったら r チェック、その下にまだディレクトリがあればさらに x チェック
+#    を開くことが出来ません: 許可がありません
+# 最下位がディレクトリの場合
+#  x チェック NG ならその中のファイル一覧は表示しつつ、それぞれの権限エラーも表示
+#    にアクセスできません: 許可がありません
+# 最下位がファイルの場合
+#  その上のディレクトリが x チェック NG なら権限エラー
+#    にアクセスできません: 許可がありません
+#
+# メッセージもリターンして後で表示する必要ありそう。表示順番の規則がわからない
+# 
+#
+
+    require "pathname"
+    pname = Pathname.new(path).expand_path
+
+# path をディレクトリと想定しているか？同名のファイルが存在した場合のため
+directory_path = (path[-1, 1] == "/") ? true : false
+
+# 上位ディレクトリの展開可/不可
+prev_dir_executable = true
+
+# 改善余地：path が同じでも毎回全体をチェックするので非効率
+pname.descend {|pitem|
+
+#p pitem
+
+# 上位ディレクトリが展開不可ならアクセス不可エラー
+      if(!prev_dir_executable)
+        errors << ["e001", path]
+        break
+      end
+
+    if (pitem.file?)
+      if (directory_path)
+        errors << ["e004", path]
+        break
+      else
+        files << path
+        break
+      end
+    end
+    
+    if (pitem.directory?)
+# 最下位のディレクトリ？
+      if (pitem.eql?(pname))
+        if (!pitem.readable? || !prev_dir_executable)
+          errors << ["e003", path]
+          break
+        end
+        dirs << [path, Dir.entries(path)]
+        if (!pitem.executable?)
+          Dir.entries(path).each do |item|
+            errors << ["e001", path + "/" + item.to_s]
+          end
+        end
+      end
+      prev_dir_executable = pitem.executable?
+    end
+
+    if (!pitem.file? && !pitem.directory?)
+      errors << ["e002", path]
+      break
+    end
+
+}
+
+# 同名のファイルがあるとき
+# ls: cannot access rls/: Not a directory
+
+# e001       errors << [path, "ls: cannot access " + path.to_s + ": Permission denied"]
+# e002       errors << [path, "ls: cannot access " + path.to_s + ": No such file or directory"]
+# e003       errors << [path, "ls: cannot open directory " + path.to_s + ": Permission denied"]
+
+#executable?
+#readable?
+#exist?
+
 end
 
+return files, dirs, errors
+
+
+=begin
+begin
+rescue Errno::EACCES
+    puts "ls: cannot access " + path.to_s + ": You don't have permission"
+end
+=end
+
+end
+
+# ----------------------------------------------------------------------
+  ERRMSG = {
+     "e001" => "ls: cannot access " + "%s" + ": Permission denied",
+     "e002" => "ls: cannot access " + "%s" + ": No such file or directory",
+     "e003" => "ls: cannot open directory " + "%s" + ": Permission denied",
+     "e004" => "ls: cannot open directory " + "%s" + ": Not a directory",
+ }
+
+def print_errors(errors)
+
+#  errors.sort_by(&:last).each do |error|
+  errors.each do |error|
+    puts sprintf(ERRMSG[error[0]], error[1].to_s) if (ERRMSG.has_key?(error[0]))
+  end
+
+end
+
+# ----------------------------------------------------------------------
+options, path_ary = args_parse
+files, dirs, errors = get_files(path_ary)
+
+print_errors(errors.select { |e| e[0] == "e001" }.sort_by(&:last))
+print_errors(errors.select { |e| e[0] == "e004" }.sort_by(&:last))
+print_errors(errors.select { |e| e[0] == "e002" })
+
+# 改善余地：表示のロジックが複雑なのは files, dirs, errors の持ち方に問題があるのでは？
+
+# とにかく files/dirs/errors 含めて length == 1 なら ファイル一覧表示、そうでなければ dir はパス表示＋ファイル一覧表示
 # まずファイル一覧を処理
 if (files.length > 0)
   print_column(files.sort)
+
+e003_ary = errors.select { |e| e[0] == "e003" }
+if (e003_ary.length > 0 || dirs.length > 0)
+  puts ""
+end
+
 end
 
 # ファイル一覧に内容が無くパスとファイル一覧のセットが一個だけならそれをファイル一覧として処理
-if (files.length == 0 && dirs.length == 1)
+# かつ、エラーが無ければ
+if (dirs.length == 1 && files.length == 0 && errors.length == 0)
   print_column(dirs[0][1].sort)
 end
 
+print_errors(errors.select { |e| e[0] == "e003" }.sort_by(&:last))
+
 # パスとファイル一覧のセットが複数あればパスを表示してファイル一覧を処理をセット分繰り返す
-# so-to, kaigyou
-for dir in dirs do
-  puts dir[0].to_s + ":"
-  print_column(dir[1].sort)
+# dirs.length == 1 でも表示する
+if !(dirs.length == 1 && files.length == 0 && errors.length == 0)
+if (dirs.length)
+  dirs.sort_by(&:first).each_with_index do |dir, i|
+    puts "" if (i != 0)
+    puts dir[0].to_s + ":"
+    print_column(dir[1].sort)
+  end
+end
 end
 
-
 __END__
+
+=begin
+options, path_ary = args_parse
+files, dirs, errors = get_files(path_ary)
+
+print_errors(errors.select { |e| e[0] == "e001" })
+print_errors(errors.select { |e| e[0] == "e004" })
+print_errors(errors.select { |e| e[0] == "e002" })
+
+# 改善余地：表示のロジックが複雑なのは files, dirs, errors の持ち方に問題があるのでは？
+
+# とにかく files/dirs/errors 含めて length == 1 なら ファイル一覧表示、そうでなければ dir はパス表示＋ファイル一覧表示
+# まずファイル一覧を処理
+do_print_files = false
+if (files.length > 0)
+  print_column(files.sort)
+  do_print_files = true
+end
+
+# ファイル一覧に内容が無くパスとファイル一覧のセットが一個だけならそれをファイル一覧として処理
+# かつ、エラーが無ければ
+if (dirs.length == 1 && !do_print_files && errors.length == 0)
+  print_column(dirs[0][1].sort)
+end
+
+e003_ary = errors.select { |e| e[0] == "e003" }
+if (e003_ary.length > 0 && do_print_files)
+if (do_print_files)
+  puts ""
+end
+print_errors(e003_ary)
+end
+
+# パスとファイル一覧のセットが複数あればパスを表示してファイル一覧を処理をセット分繰り返す
+# dirs.length == 1 でも表示する
+if !(dirs.length == 1 && !do_print_files && errors.length == 0)
+if (dirs.length)
+  dirs.sort_by(&:first).each_with_index do |dir, i|
+    puts "" if (i != 0 || do_print_files)
+    puts dir[0].to_s + ":"
+    print_column(dir[1].sort)
+  end
+end
+end
+=end
 
 =begin
 # file name generator
@@ -205,7 +400,7 @@ def args_parse
   options = ""
   paths   = []
   for arg in ARGV
-    if arg.slice(0, 1) == '-'
+    if (arg.slice(0, 1) == '-')
       options += arg
     else
       paths << arg

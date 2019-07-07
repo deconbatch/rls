@@ -48,13 +48,227 @@
       - format()
 *** 出力に色を付ける方法
     - ターミナルの問題。エスケープ文字出力で可能か？
+    - 色付けなしがデフォルトなのでこれは考えない
 *** ファイル属性の取得方法
     - Ruby
       - File.stat()
+*** ls の仕様
 *** Ruby/PHP でオプション受けてそのまま ls に渡せばいいんじゃ？
     - そういう話じゃない
 ** テスト方法
    - ls の出力と作成プログラムの出力の diff で確認
+* ToDo
+** path の処理
+   - [X] path にワイルドカードがあったときの対応←シェルの仕事では？
+   - [X] ファイル一覧表示
+     - ファイルは一つのファイル一覧に追加、ディレクトリはパスとファイル一覧のセットを保持
+     - まずファイル一覧を処理、ファイル一覧に内容が無くパスとファイル一覧のセットが一個だけならそれをファイル一覧として処理
+     - パスとファイル一覧のセットが複数あればパスを表示してファイル一覧を処理をセット分繰り返す
+     - Dir.entries はディレクトリが対象でファイルは対象ではない
+     - Dir.glob で path を一個ずつ取得し、ディレクトリかファイルかで処理を分ける？
+     - 結果はこう
+       : ls ../golang/
+       : choice  main  main.go  main.go~  processlog
+       :
+       : ls  ../golang/choice/choice ../golang/main.go
+       : ../golang/choice/choice  ../golang/main.go
+       : 
+       : ls ../golang/*
+       : ../golang/main  ../golang/main.go  ../golang/main.go~
+       : 
+       : ../golang/choice:
+       : choice  main.go  main.go~
+       : 
+       : ../golang/processlog:
+       : arg.go
+       : 
+       : ls  ../golang/choice/choice ../golang/main.go ./ ./temp01.rb ./*
+       : ../golang/choice/choice  ../golang/main.go  ./temp01.rb  ./temp01.rb  ./temp01.rb~  ./temp02.rb  ./temp02.rb~
+       : 
+       : ./:
+       : temp01.rb  temp01.rb~  temp02.rb  temp02.rb~
+   - [X] path が指定されなかった場合はカレントディレクトリが対象
+   - [X] path が存在しなかったらエラー表示
+   - [-] 権限がない場合もエラー
+     - path を絶対パスに変換し、最上位ディレクトリから順に検査、読み取り権限と実行権限が無ければ権限エラーで終了
+       - を開くことが出来ません: 許可がありません
+     - 順に下位のディレクトリを同様に検査
+     - ディレクトリの中の最下位のものは読み取り権限が無いだけで権限エラーで終了
+       - を開くことが出来ません: 許可がありません
+     - path の最下位がディレクトリの場合で実行権限がなければ、その中のファイル一覧は表示しつつ、それぞれの権限エラーも表示
+       - にアクセスできません: 許可がありません
+     - path の最下位がファイルの場合はその上のディレクトリに実行権限がなければ権限エラー
+       - にアクセスできません: 許可がありません
+     - [X] 結果はこう
+     : ls -a /var/log/httpd/access_log 
+     : ls: /var/log/httpd/access_log にアクセスできません: 許可がありません
+     :
+     : ls -a /var/log/httpd/
+     : ls: ディレクトリ /var/log/httpd/ を開くことが出来ません: 許可がありません
+     :
+     - [X] 
+     : ls ../test/rx
+     : 01rx  02rx
+     : 
+     : rls ../test/rx
+     : 01rx  02rx  
+     : 
+     - [ ] 最下位がディレクトリの場合で実行権限がない。ディレクトリ名の表示部分が異なる
+     : ls ../test/r
+     : ls: cannot access ../test/r/rx: Permission denied
+     : ls: cannot access ../test/r/r01: Permission denied
+     : ls: cannot access ../test/r/r02: Permission denied
+     : ls: cannot access ../test/r/r03: Permission denied
+     : ls: cannot access ../test/r/rxw: Permission denied
+     : r01  r02  r03  rx  rxw
+     : 
+     : rls ../test/r 
+     : ls: cannot access ../test/r/.: Permission denied
+     : ls: cannot access ../test/r/..: Permission denied
+     : ls: cannot access ../test/r/r01: Permission denied
+     : ls: cannot access ../test/r/r02: Permission denied
+     : ls: cannot access ../test/r/r03: Permission denied
+     : ls: cannot access ../test/r/rx: Permission denied
+     : ls: cannot access ../test/r/rxw: Permission denied
+     : ../test/r:
+     : r01  r02  r03  rx  rxw
+     : 
+   - [X] 先頭がハイフンのファイル名の対応
+     - -- の後のパラメータを path として扱うことで OK
+   - [X] ハイフン一個のみはファイル名として扱う
+   - [-] シンボリックリンクの処理
+     - オプション -l のとき
+     - [X] ファイル名にリンク先追加
+     - [ ] シンボリックリンクのパスを単体で与えた時、リンク先の一覧を表示してしまう
+** オプションの処理
+   - [X] -- でオプション終了の対応
+   - [X] -a 対応
+     - [X] ls .* 
+   - [X] -r 対応
+   - [-] -l 対応
+     - [X] 日付 182日以上過去/未来は時刻ではなく年を表示
+     - [X] スティッキービット、setuid、setgid 対応
+     - [ ] ls -s のブロック数と File.stat().blocks の数が合わない。File.stat().blocks が 2倍の値になる？
+     - [ ] x なしディレクトリ中のファイル一覧で stat しようとしてパーミッションエラーになる。先にアクセス可能かテストする。だめなら例外で対応
+       : rls -l ../test/r
+       : ls: cannot access ../test/r/.: Permission denied
+       : ls: cannot access ../test/r/..: Permission denied
+       : ls: cannot access ../test/r/r01: Permission denied
+       : ls: cannot access ../test/r/r02: Permission denied
+       : ls: cannot access ../test/r/r03: Permission denied
+       : ls: cannot access ../test/r/rx: Permission denied
+       : ls: cannot access ../test/r/rxw: Permission denied
+       : ../test/r:
+       : Traceback (most recent call last):
+       : 	8: from ./rls:356:in `<main>'
+       : 	7: from ./rls:356:in `each_with_index'
+       : 	6: from ./rls:356:in `each'
+       : 	5: from ./rls:359:in `block in <main>'
+       : 	4: from ./rls:150:in `print_dirs'
+       : 	3: from ./rls:105:in `print_files'
+       : 	2: from ./rls:105:in `map'
+       : 	1: from ./rls:105:in `block in print_files'
+       : ./rls:105:in `stat': Permission denied @ rb_file_s_stat - ../test/r/r01 (Errno::EACCES)
+       : 
+       : 
+       : ls -l ../test/r
+       : ls: cannot access ../test/r/rx: Permission denied
+       : ls: cannot access ../test/r/r01: Permission denied
+       : ls: cannot access ../test/r/r02: Permission denied
+       : ls: cannot access ../test/r/r03: Permission denied
+       : ls: cannot access ../test/r/rxw: Permission denied
+       : total 0
+       : ?????????? ? ? ? ?            ? r01
+       : ?????????? ? ? ? ?            ? r02
+       : ?????????? ? ? ? ?            ? r03
+       : ?????????? ? ? ? ?            ? rx
+       : ?????????? ? ? ? ?            ? rxw
+** テスト
+   - [ ] テストケース洗い出し
+** オプション無し時の動作
+   - [X] ls -C 動作再現
+     - [X] カラム数決定ロジック
+     - [X] 整列表示
+   - [X] ファイルやパイプに繋いだ時の表示対応
+     - STDOUT.isatty
+** 実施不可事項
+   - [ ] ロケール対応（メッセージ、日付フォーマット）
+   - [ ] ls -l の SELinux セキュリティコンテキスト表示
+     : ls -l /
+     : total 32
+     : lrwxrwxrwx    1 root root    7 Sep 28  2018 bin -> usr/bin
+     : dr-xr-xr-x.   5 root root 4096 May 23 21:24 boot
+     : パーミッションの後のドット
+   - [-] エラーメッセージと結果の表示順
+     - 下記の順？
+       - ls: cannot access : Permission denied
+       - ls: cannot access : No such file or directory
+       - ファイルリスト
+       - ls: cannot open directory
+       - ディレクトリリスト
+     - [X] oioi と /etc/oioi の順番が合わない、パラメータ出現順？
+       : ls -a /etc/oioi oioi
+       : ls: cannot access /etc/oioi: No such file or directory
+       : ls: cannot access oioi: No such file or directory
+       : 
+       : ls -a oioi /etc/oioi     
+       : ls: cannot access oioi: No such file or directory
+       : ls: cannot access /etc/oioi: No such file or directory
+       : 
+     - [ ] エラーメッセージの順番が合わない ls の仕様がわからない
+       : ls -a /etc/yum.conf root.thing rls/ /var/log/httpd /root/temp /root /var/log/httpd/acces oioi /etc/oioi
+       : ls: cannot access root.thing: No such file or directory
+       : ls: cannot access rls/: Not a directory
+       : ls: cannot access /root/temp: Permission denied
+       : ls: cannot access /var/log/httpd/acces: Permission denied
+       : ls: cannot access oioi: No such file or directory
+       : ls: cannot access /etc/oioi: No such file or directory
+       : /etc/yum.conf
+       : 
+       : ls: cannot open directory /root: Permission denied
+       : ls: cannot open directory /var/log/httpd: Permission denied
+       : 
+       : 
+       : rls -a /etc/yum.conf root.thing rls/ /var/log/httpd /root/temp /root /var/log/httpd/acces oioi /etc/oioi
+       : ls: cannot access /root/temp: Permission denied
+       : ls: cannot access /var/log/httpd/acces: Permission denied
+       : ls: cannot open directory rls/: Not a directory
+       : ls: cannot access root.thing: No such file or directory
+       : ls: cannot access oioi: No such file or directory
+       : ls: cannot access /etc/oioi: No such file or directory
+       : /etc/yum.conf  
+       : 
+       : ls: cannot open directory /root: Permission denied
+       : ls: cannot open directory /var/log/httpd: Permission denied
+       : 
+     - [X] 結果はこう
+       : ls -a rls /root/temp /var/log/httpd
+       : ls: cannot access /root/temp: Permission denied
+       : rls
+       : 
+       : ls: cannot open directory /var/log/httpd: Permission denied
+     - [X] 結果はこう
+       : ls -a rls root.thing 
+       : root.thing
+       : 
+       : rls:
+       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
+       : 
+       : ls -a rls root.thing oioi
+       : ls: cannot access oioi: No such file or directory
+       : root.thing
+       : 
+       : rls:
+       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
+       : 
+       : ls -a  root.thing oioi
+       : ls: cannot access oioi: No such file or directory
+       : root.thing
+       : 
+       : ls -a  rls oioi
+       : ls: cannot access oioi: No such file or directory
+       : rls:
+       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
 * 参考
 ** ls仕様
    - -C カラム表示部分のソース抜粋
@@ -62,15 +276,65 @@
    - ファイルやパイプに繋いだ時の表示は画面表示と違う
      - https://rcmdnk.com/blog/2017/05/26/computer-linux-bash-zsh/
 * メモ
-** 権限がない場合もエラー
-** ls -C 動作再現
+** ls -C 動作再現ヒント
    - 画面幅 `tput cols`
    - 各カラムのファイル名最大長
    - ファイル名の間隔 2バイト
-   - カラム数決定ロジック
+   - 愚直に行数 1から試行して画面幅に収まるカラム数の最大値をカラム数とする。
+   - 画面表示順を横と考えていたのでボツ カラム数決定ロジック
      - 全ファイル数
-     - 最大ファイル長のファイルを含む行でカラム数の最小値、最大値を出す
+     - 最大ファイル長のファイルを含む行で画面幅に収まるカラム数の最小値、最大値を出す
        - 両者が同じならそれがカラム数
+       - 行のカラム数の初期値は１から増やしながら探索
+     - 最大ファイル長が同じ複数のファイルがある可能性
+*** files.each_slice(no_row) { |ary|
+["oioi0", "oioi1", "oioi10"]
+["oioi11", "oioi12", "oioi13"]
+["oioi2", "oioi3", "oioi4"]
+["oioi5", "oioi6", "oioi7"]
+["oioi8", "oioi9"]
+*** row_ary
+[["oioi0", "oioi1", "oioi10"], ["oioi11", "oioi12", "oioi13"], ["oioi2", "oioi3", "oioi4"], ["oioi5", "oioi6", "oioi7"], ["oioi8", "oioi9"]]
+***     for row in row_ary do  p row
+["oioi0", "oioi1", "oioi10"]
+["oioi11", "oioi12", "oioi13"]
+["oioi2", "oioi3", "oioi4"]
+["oioi5", "oioi6", "oioi7"]
+["oioi8", "oioi9"]
+** ls -l 仕様
+*** ファイル種類
+    - -	普通のファイル（Regular File）
+    - d	ディレクトリ
+    - l	シンボリックリンク
+    - c	キャラクタデバイス
+    - b	ブロックデバイス
+    - p 名前付きパイプ
+    - s ソケット
+*** パーミッション
+*** ハードリンク数
+*** ユーザ名、グループ名
+*** サイズ
+*** 最終更新日
+*** ファイル名
+** テストケース
+   - オプション無し
+     - パイプ、ファイルへの出力
+     - 一行で画面幅に収まるパターン
+     - 複数行にわたるパターン
+     - 最大ファイル名長を持つファイルが単数のパターン
+     - 最大ファイル名長を持つファイルが複数のパターン
+     - 最大ファイル名長が画面幅を超えるパターン
+     - 最大ファイル名長＋マージンが画面幅と等しいパターン
+     - *最大ファイル名長＋隣接ファイルのファイル名町＋マージン x 2が画面幅と等しいパターン* ← 画面表示並びからして隣接ファイルはおかしい
+   - パス指定
+     - 相対パス指定
+     - 絶対パス指定
+     - ls *
+       - ファイル、ディレクトリ混じり
+       - ディレクトリ/* のケース
+   - ls -a
+   - ls -l
+   - ls -r
 * ログ
 ** 19/07/01
    - 2h	スケジューリング、環境準備
@@ -78,4 +342,14 @@
    - 1h	README GitHUB へ push
    - 1h Ruby オプションパース、ファイル一覧取得部分調査
 ** 19/07/03
-   - 2h ls 仕様調査、ls -C 動作再現方法考察
+   - 1h ls 仕様調査、ls -C 動作再現方法考察
+   - 1h	ls -C 動作実装
+** 19/07/04
+   - 1h ToDo 洗い出し、テストケース洗い出し
+** 19/07/05
+   - 5h ls -C 動作再現、パス取得/展開
+** 19/07/06
+   - 5h パス取得/展開、存在/権限チェック、エラー表示
+** 19/07/07
+   - 2h エラー表示
+   - 4h オプション対応

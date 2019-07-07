@@ -73,7 +73,114 @@ def calc_rownum(files, screen_width, col_margin)
 end
 
 # ----------------------------------------------------------------------
-def print_column(files)
+class List_Printer
+
+require 'etc'
+require 'date'
+
+FTYPE = {
+  "file"             => "-",
+  "directory"        => "d",
+  "characterSpecial" => "c",
+  "blockSpecial"     => "b",
+  "fifo"             => "p",
+  "link"             => "l",
+  "socket"           => "s",
+}
+
+FMODE = {
+  "7" => "rwx",
+  "6" => "rw-",
+  "5" => "r-x",
+  "4" => "r--",
+  "3" => "-wx",
+  "2" => "-w-",
+  "1" => "--x",
+  "0" => "---",
+}
+
+def print_files(dir = "", files)
+
+if (files.length == 0)
+  puts "total 0"
+  return nil
+end
+
+# ディレクトリの末尾を / にする
+if (dir != "")
+  dir += (dir[-1, 1] == "/") ? "" : "/"
+end
+
+# 改善余地：ファイルにアクセス可能かテスト
+
+# ブロック数トータルを表示
+# 改善余地：ls -s の値の 2倍になってるらしいが理屈がわからない
+block_total = (files.map { |item| File.stat(dir.to_s + item.to_s).blocks }.sum / 2)
+puts sprintf("total %d", block_total.to_i)
+
+# 最大表示文字数取得
+#stat.nlink
+#stat.uid, stat.gid
+#stat.size
+
+# 変換
+#mode
+
+
+
+files.each do |item|
+
+f = dir.to_s + item.to_s
+
+stat = File.stat(f)
+f_name = item
+if (File.ftype(f) == "link")
+  stat = File.lstat(f)
+  f_name = item.to_s + " -> " + File.readlink(f)
+end
+
+f_type = (FTYPE.has_key?(File.ftype(f))) ? FTYPE[File.ftype(f)] : " "
+
+f_mode = FMODE[stat.mode.to_s(8)[-3, 1]] + FMODE[stat.mode.to_s(8)[-2, 1]] + FMODE[stat.mode.to_s(8)[-1, 1]]
+case stat.mode.to_s(8)[-4, 1]
+when "1"
+  # sticky bit
+  f_mode[-1, 1] = "t"
+when "2"
+  # setgid
+  f_mode[-4, 1] = "s"
+when "4"
+  # setuid
+  f_mode[-7, 1] = "s"
+end
+
+date_format = ((Date.today - stat.mtime.to_date).abs > 181) ? "%b %e %_5Y" : "%b %e %H:%M"
+f_date = stat.mtime.strftime(date_format)
+
+  puts sprintf("%s%s %s %s %s %s %s %s", f_type, f_mode, stat.nlink, Etc.getpwuid(stat.uid).name, Etc.getgrgid(stat.gid).name, stat.size, f_date, f_name)
+
+# File.readlink(path) 
+# setuid?(path)
+# setgid?(path)
+# sticky?(path)
+# umask
+#  FileTest.symlink?(outfile) 
+
+end
+
+end
+
+def print_dirs(dir, files)
+  print_files(dir, files)
+end
+
+end
+# ----------------------------------------------------------------------
+class Column_Printer
+
+def print_files(files)
+
+  return nil if (files.length == 0)
 
   # ターミナルの幅と最大長のファイル名を元に計算して出力
   #  空白は最小 2文字
@@ -93,8 +200,8 @@ def print_column(files)
     row_ary << ary
   }
 
-#  p screen_width
-#  p no_row
+  #  p screen_width
+  #  p no_row
 
   # margin はそのカラムの最大ファイル長 - 自身のファイル長 + col_margin
   for index_row in (0..no_row-1) do
@@ -107,11 +214,6 @@ def print_column(files)
       #    p row
       max_length = row.max_by{ |item| item.to_s.length }.length
 
-=begin
-         for row_item in row do
-           max_length = row_item.to_s.length > max_length ? row_item.to_s.length : max_length
-         end
-=end
       margin_length = margin_base + max_length
       print row[index_row].to_s.ljust(margin_length)
     end
@@ -121,147 +223,90 @@ def print_column(files)
 
 end
 
+def print_dirs(dir, files)
+  print_files(files)
+end
 
+end
 # ----------------------------------------------------------------------
-def get_files(path_ary)
-files = []
-dirs  = []
-errors = []
-path_ary.each do |path|
+def get_file_list(path_ary)
+  files = []
+  dirs  = []
+  errors = []
+  path_ary.each do |path|
 
-=begin
-  if (!FileTest.exist? path)
-    puts "ls: cannot access " + path.to_s + ": No such file or directory"
-    break
-  end
-
-  if (!FileTest.readable? path)
-    puts "ls: cannot access " + path.to_s + ": You don't have permission"
-    break
-  end
-
-  if (pname.file?)
-    files << path
-  elsif (pname.directory?)
-    dirs << [path, Dir.entries(path)]
-  else
-    puts "ls: cannot access " + path.to_s + ": No such file or directory"
-  end
-
-=end
-
-# https://www.ibm.com/developerworks/jp/linux/library/l-lpic1-104-5/index.html
-# ディレクトリーの場合の読み取り権限は、読み取り権限を持つユーザーがディレクトリーの内容を一覧表示することを許可します。
-# 実行権限は、ユーザーがディレクトリーに入って任意のサブディレクトリーにアクセスすることを許可します。
-# ディレクトリーに対する実行権限が与えられていなければ、ディレクトリー内のファイルシステム・オブジェクトにアクセスすることはできません。ディレクトリーに対する読み取り権限が与えられていない場合、ディレクトリー内のファイルシステム・オブジェクトはディレクトリー・リストに表示されませんが、それでもディスク上でのオブジェクトのフル・パスを知っている限りは、オブジェクトにアクセスすることができます。
-
-# path を / で区切る→ items
-# 最下位がファイルかディレクトリか検査？
-# items を上位から順に処理
-#  ファイルだったら存在チェック A
-#  ディレクトリだったら r チェック、その下にまだディレクトリがあればさらに x チェック
-#    を開くことが出来ません: 許可がありません
-# 最下位がディレクトリの場合
-#  x チェック NG ならその中のファイル一覧は表示しつつ、それぞれの権限エラーも表示
-#    にアクセスできません: 許可がありません
-# 最下位がファイルの場合
-#  その上のディレクトリが x チェック NG なら権限エラー
-#    にアクセスできません: 許可がありません
-#
-# メッセージもリターンして後で表示する必要ありそう。表示順番の規則がわからない
-# 
-#
 
     require "pathname"
     pname = Pathname.new(path).expand_path
 
-# path をディレクトリと想定しているか？同名のファイルが存在した場合のため
-directory_path = (path[-1, 1] == "/") ? true : false
+    # path をディレクトリと想定しているか？同名のファイルが存在した場合のため
+    directory_path = (path[-1, 1] == "/") ? true : false
 
-# 上位ディレクトリの展開可/不可
-prev_dir_executable = true
+    # 上位ディレクトリの展開可/不可
+    prev_dir_executable = true
 
-# 改善余地：path が同じでも毎回全体をチェックするので非効率
-pname.descend {|pitem|
+    # 改善余地：path が同じでも毎回全体をチェックするので非効率
+    pname.descend {|pitem|
 
-#p pitem
+      #p pitem
 
-# 上位ディレクトリが展開不可ならアクセス不可エラー
+      # 上位ディレクトリが展開不可ならアクセス不可エラー
       if(!prev_dir_executable)
         errors << ["e001", path]
         break
       end
 
-    if (pitem.file?)
-      if (directory_path)
-        errors << ["e004", path]
-        break
-      else
-        files << path
-        break
-      end
-    end
-    
-    if (pitem.directory?)
-# 最下位のディレクトリ？
-      if (pitem.eql?(pname))
-        if (!pitem.readable? || !prev_dir_executable)
-          errors << ["e003", path]
+      if (pitem.file?)
+        if (directory_path)
+          errors << ["e004", path]
+          break
+        else
+          files << path
           break
         end
-        dirs << [path, Dir.entries(path)]
-        if (!pitem.executable?)
-          Dir.entries(path).each do |item|
-            errors << ["e001", path + "/" + item.to_s]
+      end
+      
+      if (pitem.directory?)
+        # 最下位のディレクトリ？
+        if (pitem.eql?(pname))
+          if (!pitem.readable? || !prev_dir_executable)
+            errors << ["e003", path]
+            break
+          end
+          dirs << [path, Dir.entries(path)]
+          if (!pitem.executable?)
+            Dir.entries(path).each do |item|
+              errors << ["e001", path + ((path[-1, 1] == "/") ? item.to_s : "/" + item.to_s)]
+            end
           end
         end
+        prev_dir_executable = pitem.executable?
       end
-      prev_dir_executable = pitem.executable?
-    end
 
-    if (!pitem.file? && !pitem.directory?)
-      errors << ["e002", path]
-      break
-    end
+      if (!pitem.file? && !pitem.directory?)
+        errors << ["e002", path]
+        break
+      end
 
-}
-
-# 同名のファイルがあるとき
-# ls: cannot access rls/: Not a directory
-
-# e001       errors << [path, "ls: cannot access " + path.to_s + ": Permission denied"]
-# e002       errors << [path, "ls: cannot access " + path.to_s + ": No such file or directory"]
-# e003       errors << [path, "ls: cannot open directory " + path.to_s + ": Permission denied"]
-
-#executable?
-#readable?
-#exist?
-
-end
-
-return files, dirs, errors
+    }
 
 
-=begin
-begin
-rescue Errno::EACCES
-    puts "ls: cannot access " + path.to_s + ": You don't have permission"
-end
-=end
+  end
+
+  return files, dirs, errors
 
 end
 
 # ----------------------------------------------------------------------
-  ERRMSG = {
-     "e001" => "ls: cannot access " + "%s" + ": Permission denied",
-     "e002" => "ls: cannot access " + "%s" + ": No such file or directory",
-     "e003" => "ls: cannot open directory " + "%s" + ": Permission denied",
-     "e004" => "ls: cannot open directory " + "%s" + ": Not a directory",
- }
+ERRMSG = {
+  "e001" => "ls: cannot access " + "%s" + ": Permission denied",
+  "e002" => "ls: cannot access " + "%s" + ": No such file or directory",
+  "e003" => "ls: cannot open directory " + "%s" + ": Permission denied",
+  "e004" => "ls: cannot open directory " + "%s" + ": Not a directory",
+}
 
 def print_errors(errors)
 
-#  errors.sort_by(&:last).each do |error|
   errors.each do |error|
     puts sprintf(ERRMSG[error[0]], error[1].to_s) if (ERRMSG.has_key?(error[0]))
   end
@@ -269,31 +314,61 @@ def print_errors(errors)
 end
 
 # ----------------------------------------------------------------------
-options, path_ary = args_parse
-files, dirs, errors = get_files(path_ary)
 
+
+options, path_ary = args_parse
+files, dirs, errors = get_file_list(path_ary)
+
+# オプションの処理
+if (!options.include?("a"))
+  # dirs のファイル一覧からドットファイルを削除
+  dirs.each do |item|
+    item[1].delete_if { |item| item =~ /^\..*/}
+  end
+end
+
+if (options.include?("r"))
+  files.sort! {|a, b| b <=> a }
+  dirs.sort! {|a, b| b[0] <=> a[0] }
+  dirs.each do |item|
+    item[1].sort! {|a, b| b <=> a }
+  end
+else
+  files.sort!
+  dirs.sort!
+  dirs.each do |item|
+    item[1].sort!
+  end
+end
+
+printer = Column_Printer.new
+if (options.include?("l"))
+  printer = List_Printer.new
+end
+
+
+# 結果表示
+# 改善余地：結果表示のロジックが複雑なのは files, dirs, errors の持ち方に問題があるのでは？
 print_errors(errors.select { |e| e[0] == "e001" }.sort_by(&:last))
 print_errors(errors.select { |e| e[0] == "e004" }.sort_by(&:last))
 print_errors(errors.select { |e| e[0] == "e002" })
 
-# 改善余地：表示のロジックが複雑なのは files, dirs, errors の持ち方に問題があるのでは？
-
-# とにかく files/dirs/errors 含めて length == 1 なら ファイル一覧表示、そうでなければ dir はパス表示＋ファイル一覧表示
-# まずファイル一覧を処理
+# ファイル一覧を処理
 if (files.length > 0)
-  print_column(files.sort)
+  printer.print_files(files)
 
-e003_ary = errors.select { |e| e[0] == "e003" }
-if (e003_ary.length > 0 || dirs.length > 0)
-  puts ""
-end
+# この後に表示するものがある場合改行する
+  e003_ary = errors.select { |e| e[0] == "e003" }
+  if (e003_ary.length > 0 || dirs.length > 0)
+    puts ""
+  end
 
 end
 
 # ファイル一覧に内容が無くパスとファイル一覧のセットが一個だけならそれをファイル一覧として処理
 # かつ、エラーが無ければ
 if (dirs.length == 1 && files.length == 0 && errors.length == 0)
-  print_column(dirs[0][1].sort)
+  printer.print_dirs(dirs[0][0], dirs[0][1])
 end
 
 print_errors(errors.select { |e| e[0] == "e003" }.sort_by(&:last))
@@ -301,196 +376,13 @@ print_errors(errors.select { |e| e[0] == "e003" }.sort_by(&:last))
 # パスとファイル一覧のセットが複数あればパスを表示してファイル一覧を処理をセット分繰り返す
 # dirs.length == 1 でも表示する
 if !(dirs.length == 1 && files.length == 0 && errors.length == 0)
-if (dirs.length)
-  dirs.sort_by(&:first).each_with_index do |dir, i|
-    puts "" if (i != 0)
-    puts dir[0].to_s + ":"
-    print_column(dir[1].sort)
+  if (dirs.length)
+    dirs.each_with_index do |dir, i|
+      puts "" if (i != 0)
+      puts dir[0].to_s + ":"
+      printer.print_dirs(dir[0], dir[1])
+    end
   end
-end
 end
 
 __END__
-
-=begin
-options, path_ary = args_parse
-files, dirs, errors = get_files(path_ary)
-
-print_errors(errors.select { |e| e[0] == "e001" })
-print_errors(errors.select { |e| e[0] == "e004" })
-print_errors(errors.select { |e| e[0] == "e002" })
-
-# 改善余地：表示のロジックが複雑なのは files, dirs, errors の持ち方に問題があるのでは？
-
-# とにかく files/dirs/errors 含めて length == 1 なら ファイル一覧表示、そうでなければ dir はパス表示＋ファイル一覧表示
-# まずファイル一覧を処理
-do_print_files = false
-if (files.length > 0)
-  print_column(files.sort)
-  do_print_files = true
-end
-
-# ファイル一覧に内容が無くパスとファイル一覧のセットが一個だけならそれをファイル一覧として処理
-# かつ、エラーが無ければ
-if (dirs.length == 1 && !do_print_files && errors.length == 0)
-  print_column(dirs[0][1].sort)
-end
-
-e003_ary = errors.select { |e| e[0] == "e003" }
-if (e003_ary.length > 0 && do_print_files)
-if (do_print_files)
-  puts ""
-end
-print_errors(e003_ary)
-end
-
-# パスとファイル一覧のセットが複数あればパスを表示してファイル一覧を処理をセット分繰り返す
-# dirs.length == 1 でも表示する
-if !(dirs.length == 1 && !do_print_files && errors.length == 0)
-if (dirs.length)
-  dirs.sort_by(&:first).each_with_index do |dir, i|
-    puts "" if (i != 0 || do_print_files)
-    puts dir[0].to_s + ":"
-    print_column(dir[1].sort)
-  end
-end
-end
-=end
-
-=begin
-# file name generator
-files = []
-10.times do |i|
-files << "oioi" + i.to_s #rand(15).to_i.to_s
-end
-#lengths = files.map{|file| file.to_s.length}
-=end
-
-
-__END__
-
-no_row = calc_rownum(files, screen_width, margin_base)
-
-row_ary = []
-files.each_slice(no_row) { |ary|
-  row_ary << ary
-}
-
-p screen_width
-p no_row
-
-for index_row in (0..no_row-1) do
-  length_row = 0
-  for row in row_ary do
-    print row[index_row].to_s + "  "
-  end
-  print "\n"
-end
-
-# ----------------------------------------------------------------------
-
-def args_parse
-  # オプションをパース
-  #  a r l のみ残すという処理は要らない、同じものが複数あってもかまわない
-  #  一つの文字列に入れておいて存在するか？で判定
-  # パスをパース
-  #  配列に格納、単純にソートするだけでは ls と同じにならない！ファイル、ディレクトリの順では？
-  #   ファイルの配列とディレクトリの配列に分けては？
-
-  options = ""
-  paths   = []
-  for arg in ARGV
-    if (arg.slice(0, 1) == '-')
-      options += arg
-    else
-      paths << arg
-    end
-  end 
-
-  p options
-  for path in paths.sort
-    p path
-  end
-
-end
-
-def get_filelist 
-  # path のファイル一覧取得して配列に格納
-  # path が存在しなかったらエラー表示しなければならないが？
-  files = Dir.entries('.')
-
-  # オプションに a が無ければ ^\.* を配列から削除
-  # オプションに r があれば配列を逆順ソート
-  # オプションに l がなければターミナルの幅と最大長のファイル名を元に計算して出力
-  # オプションに l があればファイル属性を取得して整形して出力
-
-  for item in files.sort {|a, b| b <=> a }
-    puts item
-  end
-
-  p format("%0*d",8,123456)
-
-end
-
-
-def max_indexes(lengths)
-  # ボツ：表示するファイル並び順が横で考えていたが、実際は縦だったので不要
-  # len の最大値を求め、要素の len が最大値と同じインデックスを配列に入れていく←最大長のファイル名のインデックス
-  # lengths に要素が一つでもある限り return null はあり得ない
-  max_len = lengths.max
-  indexes = []
-  lengths.each_with_index do |len, i|
-    if (len == max_len)
-      indexes << i
-    end
-  end
-  return indexes
-end
-
-def calculate_columns
-  
-  maxlen_indexs = max_indexes(lengths)
-
-  # 状況表示
-  for file in files
-    puts file
-  end
-  for idx in maxlen_indexs
-    p idx
-  end
-
-  # カラム数決定ロジック
-  # 間違った！表示するファイル並び順が横で考えていたが、実際は縦だった！
-  idx = maxlen_indexs[0] # まずは一個でロジック考える←複数に発展させて関数化
-
-  col_min = num_files
-  col_max = 0
-
-  (0..idx).each do |start_idx| # 可能性として 0 から idx までが開始となり得る
-    p "start", start_idx
-    row_length = 0
-    cols = 0
-    (start_idx..num_files-1).each do |i|  # 可能性として 0 から num_files-1 までが一行に収まる場合があり得る
-      row_length += lengths[i] + col_margin
-      cols += 1
-      if (row_length >= screen_width)
-        if (i >= idx)
-          if (cols > col_max)
-            col_max = cols.dup
-          end
-          if (cols < col_min)
-            col_min = cols.dup
-          end
-          p "width", screen_width
-          p "rowlen", row_length
-          p "cols", cols
-        end
-        break
-      end
-    end
-  end
-
-  p "max", col_max
-  p "min", col_min
-
-end

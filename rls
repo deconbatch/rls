@@ -1,12 +1,303 @@
 #!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
 
+# オプション -l 時の表示
+class List_Printer
+
+  require 'etc'
+  require 'date'
+
+  FTYPE = {
+    "file"             => "-",
+    "directory"        => "d",
+    "characterSpecial" => "c",
+    "blockSpecial"     => "b",
+    "fifo"             => "p",
+    "link"             => "l",
+    "socket"           => "s",
+  }
+
+  FMODE = {
+    "7" => "rwx",
+    "6" => "rw-",
+    "5" => "r-x",
+    "4" => "r--",
+    "3" => "-wx",
+    "2" => "-w-",
+    "1" => "--x",
+    "0" => "---",
+  }
+
+  # ファイル一覧の表示
+  # @param [String] dir   表示対象ファイルのあるディレクトリ
+  # @param [Array<String>]  files 表示対象ファイル
+  def print_files(dir = "", files)
+
+    if (files.length == 0)
+      puts "total 0"
+      return nil
+    end
+
+    # ディレクトリの末尾を / にする
+    if (dir != "")
+      dir += (dir[-1, 1] == "/") ? "" : "/"
+    end
+
+    block_total = 0
+    stats = []
+    len_nlink = 0
+    len_uname = 0
+    len_gname = 0
+    len_size  = 0
+
+    files.each do |item|
+
+      f = dir.to_s + item.to_s
+
+      # ファイルにアクセス可能かテスト
+      begin
+        stat = File.stat(f)
+      rescue
+        len_nlink = 1
+        len_uname = 1
+        len_gname = 1
+        len_size  = 1
+
+        stats << {
+          type:  "-",
+          mode:  "?????????",
+          nlink: "?",
+          uname: "?",
+          gname: "?",
+          size:  "?",
+          date:  "           ?",
+          name:  item,
+        }
+        
+        next
+      end
+
+      stat = File.stat(f)
+      f_name = item
+      if (File.ftype(f) == "link")
+        stat = File.lstat(f)
+        f_name = item.to_s + " -> " + File.readlink(f)
+      end
+
+      block_total += stat.blocks
+
+      f_type = (FTYPE.has_key?(File.ftype(f))) ? FTYPE[File.ftype(f)] : " "
+
+      f_mode = FMODE[stat.mode.to_s(8)[-3, 1]] + FMODE[stat.mode.to_s(8)[-2, 1]] + FMODE[stat.mode.to_s(8)[-1, 1]]
+      case stat.mode.to_s(8)[-4, 1]
+      when "1"
+        # sticky bit
+        f_mode[-1, 1] = "t"
+      when "2"
+        # setgid
+        f_mode[-4, 1] = "s"
+      when "4"
+        # setuid
+        f_mode[-7, 1] = "s"
+      end
+
+      f_nlink = stat.nlink
+      f_uname = Etc.getpwuid(stat.uid).name
+      f_gname = Etc.getgrgid(stat.gid).name
+      f_size  = stat.size
+
+      date_format = ((Date.today - stat.mtime.to_date).abs > 181) ? "%b %e %_5Y" : "%b %e %H:%M"
+      f_date = stat.mtime.strftime(date_format)
+
+      len_nlink = (f_nlink.to_s.length > len_nlink) ? f_nlink.to_s.length : len_nlink
+      len_uname = (f_uname.to_s.length > len_uname) ? f_uname.to_s.length : len_uname
+      len_gname = (f_gname.to_s.length > len_gname) ? f_gname.to_s.length : len_gname
+      len_size  = (f_size.to_s.length > len_size) ? f_size.to_s.length : len_size
+
+      stats << {
+        type:  f_type,
+        mode:  f_mode,
+        nlink: f_nlink,
+        uname: f_uname,
+        gname: f_gname,
+        size:  f_size,
+        date:  f_date,
+        name:  f_name,
+      }
+
+    end
+
+
+    # 改善余地：ls -s の値の 2倍になってるようだが理屈がわからないから本当にそうなのか不明
+    puts sprintf("total %d", (block_total / 2).to_i)
+    stats.each do |s|
+      puts sprintf("%s%s %*s %*s %*s %*s %s %s",
+                   s[:type], s[:mode], len_nlink, s[:nlink], len_uname, s[:uname], len_gname, s[:gname], len_size, s[:size], s[:date], s[:name])
+    end
+
+  end
+
+  # 表示対象ディレクトリがリンクだった場合の表示
+  # @param [String] f 表示対象リンク
+  def print_link(f)
+    stat = File.lstat(f)
+
+    f_name = f.to_s + " -> " + File.readlink(f)
+    f_type = (FTYPE.has_key?(File.ftype(f))) ? FTYPE[File.ftype(f)] : " "
+    f_mode = FMODE[stat.mode.to_s(8)[-3, 1]] + FMODE[stat.mode.to_s(8)[-2, 1]] + FMODE[stat.mode.to_s(8)[-1, 1]]
+    case stat.mode.to_s(8)[-4, 1]
+    when "1"
+      # sticky bit
+      f_mode[-1, 1] = "t"
+    when "2"
+      # setgid
+      f_mode[-4, 1] = "s"
+    when "4"
+      # setuid
+      f_mode[-7, 1] = "s"
+    end
+    f_nlink = stat.nlink
+    f_uname = Etc.getpwuid(stat.uid).name
+    f_gname = Etc.getgrgid(stat.gid).name
+    f_size  = stat.size
+    date_format = ((Date.today - stat.mtime.to_date).abs > 181) ? "%b %e %_5Y" : "%b %e %H:%M"
+    f_date = stat.mtime.strftime(date_format)
+
+    puts sprintf("%s%s %s %s %s %s %s %s",
+                 f_type, f_mode, f_nlink, f_uname, f_gname, f_size, f_date, f_name)
+  end
+
+  # ディレクトリ内ファイル一覧の表示
+  # @param [String] dir   表示対象ファイルのあるディレクトリ
+  # @param [Array<String>]  files 表示対象ファイル
+  def print_dirs(dir, files)
+    # 改善余地：リンク単体の表示が泥縄
+    if (dir[-1, 1] != "/" && File.ftype(dir) == "link")
+      print_link(dir)
+    else
+      print_files(dir, files)
+    end
+  end
+
+end
+
+# オプション -l 無しの時の表示
+class Column_Printer
+
+  # カラム表示時の行数を計算する
+  # @param [Array] files 表示対象ファイル
+  # @param [Integer] screen_width 画面幅
+  # @param [Integer] col_margin ファイル名とファイル名の間の空白数
+  # @return [Integer] no_row 計算結果の行数
+  def calc_rownum(files, screen_width, col_margin)
+
+    # 行数 1 から最大ファイル数までで画面幅に収まる最小行数を求める
+    no_row = 0
+    for no_row in  1..files.length do
+
+      overflow = false
+      row_ary = []
+      files.each_slice(no_row) { |ary|
+        row_ary << ary
+      }
+
+      for index_row in (0..no_row-1) do
+        length_row = 0
+        for row in row_ary do
+          length_row += row[index_row] ? row[index_row].to_s.length + col_margin : 0
+        end
+
+        if (length_row > screen_width)
+          overflow = true
+          break
+        end
+        
+      end
+
+      if (!overflow)
+        break
+      end
+      
+    end
+
+    return no_row
+
+  end
+
+  # ファイル一覧の表示
+  # @param [Array<String>]  files 表示対象ファイル
+  def print_files(files)
+    return nil if (files.length == 0)
+    if (STDOUT.isatty)
+      # 画面表示
+      to_display(files)
+    else 
+      # パイプやリダイレクト
+      to_file(files)
+    end
+  end
+
+  # ファイル一覧を画面に画面幅に合わせたカラム数で表示
+  # @param [Array<String>]  files 表示対象ファイル
+  def to_display(files)
+
+    # ターミナルの幅と最大長のファイル名を元に計算して出力
+    #  空白は最小 2文字
+    margin_base = 2
+    screen_width = `tput cols`.to_i
+
+    no_row = calc_rownum(files, screen_width, margin_base)
+
+    # 改善余地：row_ary は名前が変か？
+    row_ary = []
+    files.each_slice(no_row) { |ary|
+      row_ary << ary
+    }
+
+    # margin はそのカラムの最大ファイル長 - 自身のファイル長 + col_margin
+    for index_row in (0..no_row-1) do
+
+      #  p ' ---'
+      #  print index_row, max_length
+
+
+      for row in row_ary do
+        #    p row
+        max_length = row.max_by{ |item| item.to_s.length }.length
+
+        margin_length = margin_base + max_length
+        print row[index_row].to_s.ljust(margin_length)
+      end
+      print "\n"
+
+    end
+
+  end
+
+  # ファイル一覧をパイプやリダイレクトに 1カラムで表示
+  # @param [Array<String>]  files 表示対象ファイル
+  def to_file(files)
+    files.each do |f|
+      puts f
+    end
+  end
+
+  # ディレクトリ内ファイル一覧の表示
+  # @param [String] dir   表示対象ファイルのあるディレクトリ
+  # @param [Array<String>]  files 表示対象ファイル
+  def print_dirs(dir, files)
+    print_files(files)
+  end
+
+end
+
+# パラメータをオプションとパスに分解
+# @return [String] options オプションを一つの文字列に単純にまとめたもの
+# @return [Array<String>]  paths   パスを要素として持つ配列
 def args_parse
   options = ""
   paths   = []
   end_option = false
-
-
 
   for arg in ARGV
     if (arg.to_s == "--")
@@ -18,6 +309,7 @@ def args_parse
       if (arg.slice(0, 1) == "-" && arg.length > 1)
         options += arg
       else
+        # ハイフンのみのファイル名
         paths << arg
       end
     else
@@ -30,279 +322,11 @@ def args_parse
 
 end
 
-# ----------------------------------------------------------------------
-
-def calc_rownum(files, screen_width, col_margin)
-
-  # 行数 1 から最大ファイル数までで画面幅に収まる最小行数を求める
-  no_row = 0
-  for no_row in  1..files.length do
-
-    #  p '---'
-    #  p no_row
-
-    overflow = false
-    row_ary = []
-    files.each_slice(no_row) { |ary|
-      row_ary << ary
-    }
-
-    for index_row in (0..no_row-1) do
-      length_row = 0
-      for row in row_ary do
-        length_row += row[index_row] ? row[index_row].to_s.length + col_margin : 0
-      end
-
-      #    p screen_width, length_row
-
-      if (length_row > screen_width)
-        overflow = true
-        break
-      end
-      
-    end
-
-    if (!overflow)
-      break
-    end
-    
-  end
-
-  return no_row
-
-end
-
-# ----------------------------------------------------------------------
-class List_Printer
-
-require 'etc'
-require 'date'
-
-FTYPE = {
-  "file"             => "-",
-  "directory"        => "d",
-  "characterSpecial" => "c",
-  "blockSpecial"     => "b",
-  "fifo"             => "p",
-  "link"             => "l",
-  "socket"           => "s",
-}
-
-FMODE = {
-  "7" => "rwx",
-  "6" => "rw-",
-  "5" => "r-x",
-  "4" => "r--",
-  "3" => "-wx",
-  "2" => "-w-",
-  "1" => "--x",
-  "0" => "---",
-}
-
-def print_files(dir = "", files)
-
-if (files.length == 0)
-  puts "total 0"
-  return nil
-end
-
-# ディレクトリの末尾を / にする
-if (dir != "")
-  dir += (dir[-1, 1] == "/") ? "" : "/"
-end
-
-block_total = 0
-stats = []
-len_nlink = 0
-len_uname = 0
-len_gname = 0
-len_size  = 0
-
-files.each do |item|
-
-  f = dir.to_s + item.to_s
-
-  # ファイルにアクセス可能かテスト
-  begin
-    stat = File.stat(f)
-  rescue
-    len_nlink = 1
-    len_uname = 1
-    len_gname = 1
-    len_size  = 1
-
-  stats << {
-    type:  "-",
-    mode:  "?????????",
-    nlink: "?",
-    uname: "?",
-    gname: "?",
-    size:  "?",
-    date:  "           ?",
-    name:  item,
-  }
-    
-    next
-  end
-=begin
-  # ファイルにアクセス可能かテスト
-  if (!FileTest.readable?(f))
-    len_nlink = 1
-    len_uname = 1
-    len_gname = 1
-    len_size  = 1
-
-  stats << {
-    type:  "-",
-    mode:  "?????????",
-    nlink: "?",
-    uname: "?",
-    gname: "?",
-    size:  "?",
-    date:  "           ?",
-    name:  item,
-  }
-    
-    next
-  end
-=end
-
-  stat = File.stat(f)
-  f_name = item
-  if (File.ftype(f) == "link")
-    stat = File.lstat(f)
-    f_name = item.to_s + " -> " + File.readlink(f)
-  end
-
-  block_total += stat.blocks
-
-  f_type = (FTYPE.has_key?(File.ftype(f))) ? FTYPE[File.ftype(f)] : " "
-
-  f_mode = FMODE[stat.mode.to_s(8)[-3, 1]] + FMODE[stat.mode.to_s(8)[-2, 1]] + FMODE[stat.mode.to_s(8)[-1, 1]]
-  case stat.mode.to_s(8)[-4, 1]
-  when "1"
-    # sticky bit
-    f_mode[-1, 1] = "t"
-  when "2"
-    # setgid
-    f_mode[-4, 1] = "s"
-  when "4"
-    # setuid
-    f_mode[-7, 1] = "s"
-  end
-
-  f_nlink = stat.nlink
-  f_uname = Etc.getpwuid(stat.uid).name
-  f_gname = Etc.getgrgid(stat.gid).name
-  f_size  = stat.size
-
-  date_format = ((Date.today - stat.mtime.to_date).abs > 181) ? "%b %e %_5Y" : "%b %e %H:%M"
-  f_date = stat.mtime.strftime(date_format)
-
-  len_nlink = (f_nlink.to_s.length > len_nlink) ? f_nlink.to_s.length : len_nlink
-  len_uname = (f_uname.to_s.length > len_uname) ? f_uname.to_s.length : len_uname
-  len_gname = (f_gname.to_s.length > len_gname) ? f_gname.to_s.length : len_gname
-  len_size  = (f_size.to_s.length > len_size) ? f_size.to_s.length : len_size
-
-  stats << {
-    type:  f_type,
-    mode:  f_mode,
-    nlink: f_nlink,
-    uname: f_uname,
-    gname: f_gname,
-    size:  f_size,
-    date:  f_date,
-    name:  f_name,
-  }
-
-  # File.readlink(path) 
-  # setuid?(path)
-  # setgid?(path)
-  # sticky?(path)
-  # umask
-  #  FileTest.symlink?(outfile) 
-
-end
-
-
-# 改善余地：ls -s の値の 2倍になってるようだが理屈がわからない
-puts sprintf("total %d", (block_total / 2).to_i)
-stats.each do |s|
-  puts sprintf("%s%s %*s %*s %*s %*s %s %s",
-               s[:type], s[:mode], len_nlink, s[:nlink], len_uname, s[:uname], len_gname, s[:gname], len_size, s[:size], s[:date], s[:name])
-end
-
-end
-
-def print_dirs(dir, files)
-  print_files(dir, files)
-end
-
-end
-# ----------------------------------------------------------------------
-class Column_Printer
-
-def print_files(files)
-  return nil if (files.length == 0)
-  if (STDOUT.isatty)
-    # 画面表示
-    to_display(files)
-  else 
-    # パイプやリダイレクト
-    to_file(files)
-  end
-end
-
-def to_file(files)
-  files.each do |f|
-    puts f
-  end
-end
-
-def to_display(files)
-
-  # ターミナルの幅と最大長のファイル名を元に計算して出力
-  #  空白は最小 2文字
-  margin_base = 2
-  screen_width = `tput cols`.to_i
-
-    no_row = calc_rownum(files, screen_width, margin_base)
-
-  # row_ary は名前が変か？
-  row_ary = []
-  files.each_slice(no_row) { |ary|
-    row_ary << ary
-  }
-
-  #  p screen_width
-  #  p no_row
-
-  # margin はそのカラムの最大ファイル長 - 自身のファイル長 + col_margin
-  for index_row in (0..no_row-1) do
-
-    #  p ' ---'
-    #  print index_row, max_length
-
-
-    for row in row_ary do
-      #    p row
-      max_length = row.max_by{ |item| item.to_s.length }.length
-
-      margin_length = margin_base + max_length
-      print row[index_row].to_s.ljust(margin_length)
-    end
-    print "\n"
-
-  end
-
-end
-
-def print_dirs(dir, files)
-  print_files(files)
-end
-
-end
-# ----------------------------------------------------------------------
+# ファイル名の一覧を取得する
+# @param [Array<String>] path_ary ファイル名一覧取得対象のパス
+# @return [Array<String>] files ファイル名一覧
+# @return [Array<String, Array>] dirs ディレクトリ名とその中のファイル名一覧
+# @return [Array<String, String>] errors エラー番号とエラーのあったパス
 def get_file_list(path_ary)
   files = []
   dirs  = []
@@ -379,6 +403,8 @@ ERRMSG = {
   "e004" => "ls: cannot open directory " + "%s" + ": Not a directory",
 }
 
+# エラーを標準エラー出力に出力
+# @param [Array<String, String>] errors エラー番号とエラーのあったパス
 def print_errors(errors)
 
   errors.each do |error|
@@ -431,7 +457,7 @@ print_errors(errors.select { |e| e[0] == "e002" })
 if (files.length > 0)
   printer.print_files(files)
 
-# この後に表示するものがある場合改行する
+  # この後に表示するものがある場合改行する
   e003_ary = errors.select { |e| e[0] == "e003" }
   if (e003_ary.length > 0 || dirs.length > 0)
     puts ""

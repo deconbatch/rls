@@ -113,7 +113,7 @@
      : rls ../test/rx
      : 01rx  02rx  
      : 
-     - [ ] 最下位がディレクトリの場合で実行権限がない。ディレクトリ名の表示部分が異なる
+     - [ ] 最下位がディレクトリの場合で実行権限がない。ディレクトリ名の表示有無が異なる
      : ls ../test/r
      : ls: cannot access ../test/r/rx: Permission denied
      : ls: cannot access ../test/r/r01: Permission denied
@@ -136,20 +136,21 @@
    - [X] 先頭がハイフンのファイル名の対応
      - -- の後のパラメータを path として扱うことで OK
    - [X] ハイフン一個のみはファイル名として扱う
-   - [-] シンボリックリンクの処理
+   - [X] シンボリックリンクの処理
      - オプション -l のとき
      - [X] ファイル名にリンク先追加
-     - [ ] シンボリックリンクのパスを単体で与えた時、リンク先の一覧を表示してしまう
+     - [X] シンボリックリンクのパスを単体で与えた時、リンク先の一覧を表示してしまう
 ** オプションの処理
    - [X] -- でオプション終了の対応
    - [X] -a 対応
      - [X] ls .* 
    - [X] -r 対応
-   - [-] -l 対応
+   - [X] -l 対応
      - [X] 日付 182日以上過去/未来は時刻ではなく年を表示
      - [X] スティッキービット、setuid、setgid 対応
-     - [ ] ls -s のブロック数と File.stat().blocks の数が合わない。File.stat().blocks が 2倍の値になる？
-     - [ ] x なしディレクトリ中のファイル一覧で stat しようとしてパーミッションエラーになる。先にアクセス可能かテストする。だめなら例外で対応
+     - [X] ls -s のブロック数と File.stat().blocks の数が合わない。
+       - File.stat().blocks が 2倍の値になる？
+     - [X] x なしディレクトリ中のファイル一覧で stat しようとしてパーミッションエラーになる。先にアクセス可能かテストする。だめなら例外で対応
        : rls -l ../test/r
        : ls: cannot access ../test/r/.: Permission denied
        : ls: cannot access ../test/r/..: Permission denied
@@ -199,6 +200,8 @@
      : lrwxrwxrwx    1 root root    7 Sep 28  2018 bin -> usr/bin
      : dr-xr-xr-x.   5 root root 4096 May 23 21:24 boot
      : パーミッションの後のドット
+     - [ ] セキュリティコンテキスト表示は無い前提でテストする
+       - 参考：http://tkak.hatenablog.com/entry/2013/01/04/151248
    - [-] エラーメッセージと結果の表示順
      - 下記の順？
        - ls: cannot access : Permission denied
@@ -353,3 +356,7 @@
 ** 19/07/07
    - 2h エラー表示
    - 4h オプション対応
+** 19/07/08
+   - 1h テストスクリプト作成
+   - 2h -l オプション対応、対象がリンクの場合の対応
+   - 1h YARD コメント追加

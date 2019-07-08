@@ -111,61 +111,125 @@ if (dir != "")
   dir += (dir[-1, 1] == "/") ? "" : "/"
 end
 
-# 改善余地：ファイルにアクセス可能かテスト
-
-# ブロック数トータルを表示
-# 改善余地：ls -s の値の 2倍になってるらしいが理屈がわからない
-block_total = (files.map { |item| File.stat(dir.to_s + item.to_s).blocks }.sum / 2)
-puts sprintf("total %d", block_total.to_i)
-
-# 最大表示文字数取得
-#stat.nlink
-#stat.uid, stat.gid
-#stat.size
-
-# 変換
-#mode
-
-
+block_total = 0
+stats = []
+len_nlink = 0
+len_uname = 0
+len_gname = 0
+len_size  = 0
 
 files.each do |item|
 
-f = dir.to_s + item.to_s
+  f = dir.to_s + item.to_s
 
-stat = File.stat(f)
-f_name = item
-if (File.ftype(f) == "link")
-  stat = File.lstat(f)
-  f_name = item.to_s + " -> " + File.readlink(f)
+  # ファイルにアクセス可能かテスト
+  begin
+    stat = File.stat(f)
+  rescue
+    len_nlink = 1
+    len_uname = 1
+    len_gname = 1
+    len_size  = 1
+
+  stats << {
+    type:  "-",
+    mode:  "?????????",
+    nlink: "?",
+    uname: "?",
+    gname: "?",
+    size:  "?",
+    date:  "           ?",
+    name:  item,
+  }
+    
+    next
+  end
+=begin
+  # ファイルにアクセス可能かテスト
+  if (!FileTest.readable?(f))
+    len_nlink = 1
+    len_uname = 1
+    len_gname = 1
+    len_size  = 1
+
+  stats << {
+    type:  "-",
+    mode:  "?????????",
+    nlink: "?",
+    uname: "?",
+    gname: "?",
+    size:  "?",
+    date:  "           ?",
+    name:  item,
+  }
+    
+    next
+  end
+=end
+
+  stat = File.stat(f)
+  f_name = item
+  if (File.ftype(f) == "link")
+    stat = File.lstat(f)
+    f_name = item.to_s + " -> " + File.readlink(f)
+  end
+
+  block_total += stat.blocks
+
+  f_type = (FTYPE.has_key?(File.ftype(f))) ? FTYPE[File.ftype(f)] : " "
+
+  f_mode = FMODE[stat.mode.to_s(8)[-3, 1]] + FMODE[stat.mode.to_s(8)[-2, 1]] + FMODE[stat.mode.to_s(8)[-1, 1]]
+  case stat.mode.to_s(8)[-4, 1]
+  when "1"
+    # sticky bit
+    f_mode[-1, 1] = "t"
+  when "2"
+    # setgid
+    f_mode[-4, 1] = "s"
+  when "4"
+    # setuid
+    f_mode[-7, 1] = "s"
+  end
+
+  f_nlink = stat.nlink
+  f_uname = Etc.getpwuid(stat.uid).name
+  f_gname = Etc.getgrgid(stat.gid).name
+  f_size  = stat.size
+
+  date_format = ((Date.today - stat.mtime.to_date).abs > 181) ? "%b %e %_5Y" : "%b %e %H:%M"
+  f_date = stat.mtime.strftime(date_format)
+
+  len_nlink = (f_nlink.to_s.length > len_nlink) ? f_nlink.to_s.length : len_nlink
+  len_uname = (f_uname.to_s.length > len_uname) ? f_uname.to_s.length : len_uname
+  len_gname = (f_gname.to_s.length > len_gname) ? f_gname.to_s.length : len_gname
+  len_size  = (f_size.to_s.length > len_size) ? f_size.to_s.length : len_size
+
+  stats << {
+    type:  f_type,
+    mode:  f_mode,
+    nlink: f_nlink,
+    uname: f_uname,
+    gname: f_gname,
+    size:  f_size,
+    date:  f_date,
+    name:  f_name,
+  }
+
+  # File.readlink(path) 
+  # setuid?(path)
+  # setgid?(path)
+  # sticky?(path)
+  # umask
+  #  FileTest.symlink?(outfile) 
+
 end
 
-f_type = (FTYPE.has_key?(File.ftype(f))) ? FTYPE[File.ftype(f)] : " "
 
-f_mode = FMODE[stat.mode.to_s(8)[-3, 1]] + FMODE[stat.mode.to_s(8)[-2, 1]] + FMODE[stat.mode.to_s(8)[-1, 1]]
-case stat.mode.to_s(8)[-4, 1]
-when "1"
-  # sticky bit
-  f_mode[-1, 1] = "t"
-when "2"
-  # setgid
-  f_mode[-4, 1] = "s"
-when "4"
-  # setuid
-  f_mode[-7, 1] = "s"
-end
-
-date_format = ((Date.today - stat.mtime.to_date).abs > 181) ? "%b %e %_5Y" : "%b %e %H:%M"
-f_date = stat.mtime.strftime(date_format)
-
-  puts sprintf("%s%s %s %s %s %s %s %s", f_type, f_mode, stat.nlink, Etc.getpwuid(stat.uid).name, Etc.getgrgid(stat.gid).name, stat.size, f_date, f_name)
-
-# File.readlink(path) 
-# setuid?(path)
-# setgid?(path)
-# sticky?(path)
-# umask
-#  FileTest.symlink?(outfile) 
-
+# 改善余地：ls -s の値の 2倍になってるようだが理屈がわからない
+puts sprintf("total %d", (block_total / 2).to_i)
+stats.each do |s|
+  puts sprintf("%s%s %*s %*s %*s %*s %s %s",
+               s[:type], s[:mode], len_nlink, s[:nlink], len_uname, s[:uname], len_gname, s[:gname], len_size, s[:size], s[:date], s[:name])
 end
 
 end
@@ -179,20 +243,30 @@ end
 class Column_Printer
 
 def print_files(files)
-
   return nil if (files.length == 0)
+  if (STDOUT.isatty)
+    # 画面表示
+    to_display(files)
+  else 
+    # パイプやリダイレクト
+    to_file(files)
+  end
+end
+
+def to_file(files)
+  files.each do |f|
+    puts f
+  end
+end
+
+def to_display(files)
 
   # ターミナルの幅と最大長のファイル名を元に計算して出力
   #  空白は最小 2文字
   margin_base = 2
   screen_width = `tput cols`.to_i
 
-  # パイプやリダイレクトなら行数はファイル数、そうでなければ画面幅で行数計算
-  no_row = files.length
-  if (STDOUT.isatty)
-    # margin_base で計算してちゃダメでは？ ←最大長のファイルの行もテストするから大丈夫なはず                                                   
     no_row = calc_rownum(files, screen_width, margin_base)
-  end
 
   # row_ary は名前が変か？
   row_ary = []
@@ -308,7 +382,7 @@ ERRMSG = {
 def print_errors(errors)
 
   errors.each do |error|
-    puts sprintf(ERRMSG[error[0]], error[1].to_s) if (ERRMSG.has_key?(error[0]))
+    STDERR.puts sprintf(ERRMSG[error[0]], error[1].to_s) if (ERRMSG.has_key?(error[0]))
   end
 
 end

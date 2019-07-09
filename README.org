@@ -6,6 +6,164 @@
 #+OPTIONS: ^:nil
 #+OPTIONS: ^:{}
 
+* 実施結果概要
+** 要件
+   - 最新版の Ruby を用いて `ls` コマンドを作成すること。
+   - オプションとして、最低限 `-a`, `-l`, `-r`を実装。`-al`や`-alr`などのように、組み合わされても使えるように。
+** 実施不可事項
+   - [ ] ロケール対応（メッセージ、日付フォーマット）
+   - [ ] ls -l の SELinux セキュリティコンテキスト表示
+     : ls -l /
+     : total 32
+     : lrwxrwxrwx    1 root root    7 Sep 28  2018 bin -> usr/bin
+     : dr-xr-xr-x.   5 root root 4096 May 23 21:24 boot
+     : パーミッションの後のドット
+     - [ ] セキュリティコンテキスト表示は無い前提でテストする
+       - 参考：http://tkak.hatenablog.com/entry/2013/01/04/151248
+   - [-] エラーメッセージと結果の表示順
+     - 下記の順？
+       - ls: cannot access : Permission denied
+       - ls: cannot access : No such file or directory
+       - ファイルリスト
+       - ls: cannot open directory
+       - ディレクトリリスト
+     - [X] oioi と /etc/oioi の順番が合わない、パラメータ出現順？
+       : ls -a /etc/oioi oioi
+       : ls: cannot access /etc/oioi: No such file or directory
+       : ls: cannot access oioi: No such file or directory
+       : 
+       : ls -a oioi /etc/oioi     
+       : ls: cannot access oioi: No such file or directory
+       : ls: cannot access /etc/oioi: No such file or directory
+       : 
+     - [ ] エラーメッセージの順番が合わない ls の仕様を知るためにソース読むべきでは？
+       : ls -a /etc/yum.conf root.thing rls/ /var/log/httpd /root/temp /root /var/log/httpd/acces oioi /etc/oioi
+       : ls: cannot access root.thing: No such file or directory
+       : ls: cannot access rls/: Not a directory
+       : ls: cannot access /root/temp: Permission denied
+       : ls: cannot access /var/log/httpd/acces: Permission denied
+       : ls: cannot access oioi: No such file or directory
+       : ls: cannot access /etc/oioi: No such file or directory
+       : /etc/yum.conf
+       : 
+       : ls: cannot open directory /root: Permission denied
+       : ls: cannot open directory /var/log/httpd: Permission denied
+       : 
+       : 
+       : rls -a /etc/yum.conf root.thing rls/ /var/log/httpd /root/temp /root /var/log/httpd/acces oioi /etc/oioi
+       : ls: cannot access /root/temp: Permission denied
+       : ls: cannot access /var/log/httpd/acces: Permission denied
+       : ls: cannot open directory rls/: Not a directory
+       : ls: cannot access root.thing: No such file or directory
+       : ls: cannot access oioi: No such file or directory
+       : ls: cannot access /etc/oioi: No such file or directory
+       : /etc/yum.conf  
+       : 
+       : ls: cannot open directory /root: Permission denied
+       : ls: cannot open directory /var/log/httpd: Permission denied
+       : 
+     - [X] 結果例
+       : ls -a rls /root/temp /var/log/httpd
+       : ls: cannot access /root/temp: Permission denied
+       : rls
+       : 
+       : ls: cannot open directory /var/log/httpd: Permission denied
+     - [X] 結果例
+       : ls -a rls root.thing 
+       : root.thing
+       : 
+       : rls:
+       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
+       : 
+       : ls -a rls root.thing oioi
+       : ls: cannot access oioi: No such file or directory
+       : root.thing
+       : 
+       : rls:
+       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
+       : 
+       : ls -a  root.thing oioi
+       : ls: cannot access oioi: No such file or directory
+       : root.thing
+       : 
+       : ls -a  rls oioi
+       : ls: cannot access oioi: No such file or directory
+       : rls:
+       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
+* テスト
+** テストケース
+*** オプションのパース
+    - [ ] オプション無し
+    - [ ] '-a', '-l', '-r' それぞれを単体で指定
+    - [ ] '-al' や '-alr' などのように組み合わして指定
+    - [ ] パスの前後に指定
+    - [ ] '--' の後に書いたオプションはパス扱いになること
+    - [ ] '- a' はパス扱いになること
+*** パスのパース
+    - [ ] パス無し
+    - [ ] 単体で指定
+    - [ ] 複数指定
+*** パス、ファイルの種類
+    - [ ] 相対パス
+    - [ ] 絶対パス
+    - [ ] ファイル
+    - [ ] ディレクトリ、最後 / 無し
+    - [ ] ディレクトリ、最後 / 有り
+    - [ ] *
+    - [ ] ディレクトリ/*
+    - [ ] キャラクタデバイス、ブロックデバイス、fifo、ソケット、シンボリックリンク
+    - [ ] 実行権限無しのディレクトリ
+    - [ ] 実行権限無しのディレクトリ中のファイル
+*** -l オプション無しカラム表示
+    - [ ] パイプ、ファイルへの出力が 1カラムになること
+    - [ ] 一行で画面幅に収まるパターン
+    - [ ] 複数行にわたるパターン
+    - [ ] 同じパス指定で画面幅を変更して行数が変更になるパターン
+    - [ ] 最大ファイル名長が画面幅を超えるパターン
+*** -l オプションありリスト表示
+    - [ ] 日付 182日以上過去/未来は時刻ではなく年を表示
+    - [ ] スティッキービット、setuid、setgid の表示
+    - [ ] ディレクトリ中のシンボリックリンクの表示
+    - [ ] シンボリックリンク単体の表示
+    - [ ] ディレクトリ表示の場合に合計ブロック数表示
+    - [ ] ファイルのみの表示の場合には合計ブロック数表示無し
+    - [ ] ファイル種類、パーミッション、ハードリンク数、ユーザ名、グループ名、サイズ、最終更新日、ファイル名の表示
+    - [ ] 複数ディレクトリ表示
+*** -a 有無
+    - [ ] -a 有りと無しのパターン
+*** -r 有無
+    - [ ] -r 有りと無しのパターン
+*** エラー表示
+    - [ ] 上位ディレクトリに実行権限が無い場合の cannot access Permission denied エラー
+    - [ ] 存在しないファイル、ディレクトリ時の cannot access No such file or directory エラー
+    - [ ] パスに指定したディレクトリに読み込み権限が無い場合の cannot open directory Permission denied エラー
+    - [ ] 存在するファイルと同名のパスを / 付きで指定した際の cannot open directory Not a directory エラー
+** テスト結果
+   - test/ ディレクトリ中に格納
+* 日時実施事項ログ
+** 19/07/01
+   - 2h	スケジューリング、環境準備
+** 19/07/02
+   - 1h	README GitHUB へ push
+   - 1h Ruby オプションパース、ファイル一覧取得部分調査
+** 19/07/03
+   - 1h ls 仕様調査、ls -C 動作再現方法考察
+   - 1h	ls -C 動作実装
+** 19/07/04
+   - 1h ToDo 洗い出し、テストケース洗い出し
+** 19/07/05
+   - 5h ls -C 動作再現、パス取得/展開
+** 19/07/06
+   - 5h パス取得/展開、存在/権限チェック、エラー表示
+** 19/07/07
+   - 2h エラー表示
+   - 4h オプション対応
+** 19/07/08
+   - 1h テストスクリプト作成
+   - 2h -l オプション対応、対象がシンボリックリンクの場合の対応
+   - 1h YARD コメント追加
+** 19/07/09
+   - 1h オプション無し時のカラム表示バグ対応とリファクタリング
 * スケジューリング
 ** 要件整理
    - `ls`コマンドを作成
@@ -113,7 +271,7 @@
      : rls ../test/rx
      : 01rx  02rx  
      : 
-     - [ ] 最下位がディレクトリの場合で実行権限がない。ディレクトリ名の表示有無が異なる
+     - [ ] 最下位が実行権限のないディレクトリの場合。エラーメッセージ、ディレクトリ名の表示有無が異なる
      : ls ../test/r
      : ls: cannot access ../test/r/rx: Permission denied
      : ls: cannot access ../test/r/r01: Permission denied
@@ -136,10 +294,22 @@
    - [X] 先頭がハイフンのファイル名の対応
      - -- の後のパラメータを path として扱うことで OK
    - [X] ハイフン一個のみはファイル名として扱う
+** 特殊ファイルの処理
+   - [X] キャラクタデバイス
+   - [X] ブロックデバイス
+   - [X] fifo
+   - [X] ソケット
    - [X] シンボリックリンクの処理
      - オプション -l のとき
      - [X] ファイル名にリンク先追加
      - [X] シンボリックリンクのパスを単体で与えた時、リンク先の一覧を表示してしまう
+     - [X] シンボリックリンク /etc/grub2.cfg の表示がおかしい。
+       : ls -l /etc/grub2.cfg
+       : lrwxrwxrwx 1 root root 22 May  8 20:01 /etc/grub2.cfg -> ../boot/grub2/grub.cfg
+       : 
+       : ./rls -l /etc/grub2.cfg
+       : ls: cannot access /etc/grub2.cfg: No such file or directory
+   - [ ] /dev の表示形式が異なる
 ** オプションの処理
    - [X] -- でオプション終了の対応
    - [X] -a 対応
@@ -189,91 +359,14 @@
 ** オプション無し時の動作
    - [X] ls -C 動作再現
      - [X] カラム数決定ロジック
+       - ls /lib
      - [X] 整列表示
    - [X] ファイルやパイプに繋いだ時の表示対応
      - STDOUT.isatty
-** 実施不可事項
-   - [ ] ロケール対応（メッセージ、日付フォーマット）
-   - [ ] ls -l の SELinux セキュリティコンテキスト表示
-     : ls -l /
-     : total 32
-     : lrwxrwxrwx    1 root root    7 Sep 28  2018 bin -> usr/bin
-     : dr-xr-xr-x.   5 root root 4096 May 23 21:24 boot
-     : パーミッションの後のドット
-     - [ ] セキュリティコンテキスト表示は無い前提でテストする
-       - 参考：http://tkak.hatenablog.com/entry/2013/01/04/151248
-   - [-] エラーメッセージと結果の表示順
-     - 下記の順？
-       - ls: cannot access : Permission denied
-       - ls: cannot access : No such file or directory
-       - ファイルリスト
-       - ls: cannot open directory
-       - ディレクトリリスト
-     - [X] oioi と /etc/oioi の順番が合わない、パラメータ出現順？
-       : ls -a /etc/oioi oioi
-       : ls: cannot access /etc/oioi: No such file or directory
-       : ls: cannot access oioi: No such file or directory
-       : 
-       : ls -a oioi /etc/oioi     
-       : ls: cannot access oioi: No such file or directory
-       : ls: cannot access /etc/oioi: No such file or directory
-       : 
-     - [ ] エラーメッセージの順番が合わない ls の仕様がわからない
-       : ls -a /etc/yum.conf root.thing rls/ /var/log/httpd /root/temp /root /var/log/httpd/acces oioi /etc/oioi
-       : ls: cannot access root.thing: No such file or directory
-       : ls: cannot access rls/: Not a directory
-       : ls: cannot access /root/temp: Permission denied
-       : ls: cannot access /var/log/httpd/acces: Permission denied
-       : ls: cannot access oioi: No such file or directory
-       : ls: cannot access /etc/oioi: No such file or directory
-       : /etc/yum.conf
-       : 
-       : ls: cannot open directory /root: Permission denied
-       : ls: cannot open directory /var/log/httpd: Permission denied
-       : 
-       : 
-       : rls -a /etc/yum.conf root.thing rls/ /var/log/httpd /root/temp /root /var/log/httpd/acces oioi /etc/oioi
-       : ls: cannot access /root/temp: Permission denied
-       : ls: cannot access /var/log/httpd/acces: Permission denied
-       : ls: cannot open directory rls/: Not a directory
-       : ls: cannot access root.thing: No such file or directory
-       : ls: cannot access oioi: No such file or directory
-       : ls: cannot access /etc/oioi: No such file or directory
-       : /etc/yum.conf  
-       : 
-       : ls: cannot open directory /root: Permission denied
-       : ls: cannot open directory /var/log/httpd: Permission denied
-       : 
-     - [X] 結果はこう
-       : ls -a rls /root/temp /var/log/httpd
-       : ls: cannot access /root/temp: Permission denied
-       : rls
-       : 
-       : ls: cannot open directory /var/log/httpd: Permission denied
-     - [X] 結果はこう
-       : ls -a rls root.thing 
-       : root.thing
-       : 
-       : rls:
-       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
-       : 
-       : ls -a rls root.thing oioi
-       : ls: cannot access oioi: No such file or directory
-       : root.thing
-       : 
-       : rls:
-       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
-       : 
-       : ls -a  root.thing oioi
-       : ls: cannot access oioi: No such file or directory
-       : root.thing
-       : 
-       : ls -a  rls oioi
-       : ls: cannot access oioi: No such file or directory
-       : rls:
-       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
 * 参考
 ** ls仕様
+   - GNU coreutils ソース
+     - https://github.com/coreutils/coreutils/tree/master/src
    - -C カラム表示部分のソース抜粋
      - https://mfumi.hatenadiary.org/entry/20111012/1318347200
    - ファイルやパイプに繋いだ時の表示は画面表示と違う
@@ -319,44 +412,3 @@
 *** サイズ
 *** 最終更新日
 *** ファイル名
-** テストケース
-   - オプション無し
-     - パイプ、ファイルへの出力
-     - 一行で画面幅に収まるパターン
-     - 複数行にわたるパターン
-     - 最大ファイル名長を持つファイルが単数のパターン
-     - 最大ファイル名長を持つファイルが複数のパターン
-     - 最大ファイル名長が画面幅を超えるパターン
-     - 最大ファイル名長＋マージンが画面幅と等しいパターン
-     - *最大ファイル名長＋隣接ファイルのファイル名町＋マージン x 2が画面幅と等しいパターン* ← 画面表示並びからして隣接ファイルはおかしい
-   - パス指定
-     - 相対パス指定
-     - 絶対パス指定
-     - ls *
-       - ファイル、ディレクトリ混じり
-       - ディレクトリ/* のケース
-   - ls -a
-   - ls -l
-   - ls -r
-* ログ
-** 19/07/01
-   - 2h	スケジューリング、環境準備
-** 19/07/02
-   - 1h	README GitHUB へ push
-   - 1h Ruby オプションパース、ファイル一覧取得部分調査
-** 19/07/03
-   - 1h ls 仕様調査、ls -C 動作再現方法考察
-   - 1h	ls -C 動作実装
-** 19/07/04
-   - 1h ToDo 洗い出し、テストケース洗い出し
-** 19/07/05
-   - 5h ls -C 動作再現、パス取得/展開
-** 19/07/06
-   - 5h パス取得/展開、存在/権限チェック、エラー表示
-** 19/07/07
-   - 2h エラー表示
-   - 4h オプション対応
-** 19/07/08
-   - 1h テストスクリプト作成
-   - 2h -l オプション対応、対象がリンクの場合の対応
-   - 1h YARD コメント追加

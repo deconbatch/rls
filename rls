@@ -56,7 +56,11 @@ class List_Printer
 
       # ファイルにアクセス可能かテスト
       begin
+      if (File.ftype(f) == "link")
+        stat = File.lstat(f)
+      else
         stat = File.stat(f)
+      end
       rescue
         len_nlink = 1
         len_uname = 1
@@ -77,11 +81,14 @@ class List_Printer
         next
       end
 
-      stat = File.stat(f)
-      f_name = item
+      stat = ""
+      f_name = ""
       if (File.ftype(f) == "link")
         stat = File.lstat(f)
         f_name = item.to_s + " -> " + File.readlink(f)
+      else
+        stat = File.stat(f)
+        f_name = item
       end
 
       block_total += stat.blocks
@@ -129,12 +136,24 @@ class List_Printer
 
 
     # 改善余地：ls -s の値の 2倍になってるようだが理屈がわからないから本当にそうなのか不明
-    puts sprintf("total %d", (block_total / 2).to_i)
+    puts sprintf("total %d", (block_total / 2).to_i) if (dir != "")
     stats.each do |s|
-      puts sprintf("%s%s %*s %*s %*s %*s %s %s",
+      puts sprintf("%s%s %*s %-*s %-*s %*s %s %s",
                    s[:type], s[:mode], len_nlink, s[:nlink], len_uname, s[:uname], len_gname, s[:gname], len_size, s[:size], s[:date], s[:name])
     end
 
+  end
+
+  # ディレクトリ内ファイル一覧の表示
+  # @param [String] dir   表示対象ファイルのあるディレクトリ
+  # @param [Array<String>]  files 表示対象ファイル
+  def print_dirs(dir, files)
+    # 改善余地：リンク単体の表示が泥縄
+    if (dir[-1, 1] != "/" && File.ftype(dir) == "link")
+      print_link(dir)
+    else
+      print_files(dir, files)
+    end
   end
 
   # 表示対象ディレクトリがリンクだった場合の表示
@@ -167,62 +186,10 @@ class List_Printer
                  f_type, f_mode, f_nlink, f_uname, f_gname, f_size, f_date, f_name)
   end
 
-  # ディレクトリ内ファイル一覧の表示
-  # @param [String] dir   表示対象ファイルのあるディレクトリ
-  # @param [Array<String>]  files 表示対象ファイル
-  def print_dirs(dir, files)
-    # 改善余地：リンク単体の表示が泥縄
-    if (dir[-1, 1] != "/" && File.ftype(dir) == "link")
-      print_link(dir)
-    else
-      print_files(dir, files)
-    end
-  end
-
 end
 
 # オプション -l 無しの時の表示
 class Column_Printer
-
-  # カラム表示時の行数を計算する
-  # @param [Array] files 表示対象ファイル
-  # @param [Integer] screen_width 画面幅
-  # @param [Integer] col_margin ファイル名とファイル名の間の空白数
-  # @return [Integer] no_row 計算結果の行数
-  def calc_rownum(files, screen_width, col_margin)
-
-    # 行数 1 から最大ファイル数までで画面幅に収まる最小行数を求める
-    no_row = 0
-    for no_row in  1..files.length do
-
-      overflow = false
-      row_ary = []
-      files.each_slice(no_row) { |ary|
-        row_ary << ary
-      }
-
-      for index_row in (0..no_row-1) do
-        length_row = 0
-        for row in row_ary do
-          length_row += row[index_row] ? row[index_row].to_s.length + col_margin : 0
-        end
-
-        if (length_row > screen_width)
-          overflow = true
-          break
-        end
-        
-      end
-
-      if (!overflow)
-        break
-      end
-      
-    end
-
-    return no_row
-
-  end
 
   # ファイル一覧の表示
   # @param [Array<String>]  files 表示対象ファイル
@@ -237,39 +204,50 @@ class Column_Printer
     end
   end
 
+  # ディレクトリ内ファイル一覧の表示
+  # @param [String] dir   表示対象ファイルのあるディレクトリ
+  # @param [Array<String>]  files 表示対象ファイル
+  def print_dirs(dir, files)
+    print_files(files)
+  end
+
   # ファイル一覧を画面に画面幅に合わせたカラム数で表示
   # @param [Array<String>]  files 表示対象ファイル
   def to_display(files)
 
     # ターミナルの幅と最大長のファイル名を元に計算して出力
-    #  空白は最小 2文字
-    margin_base = 2
+    # カラム間の空白は 2文字
     screen_width = `tput cols`.to_i
+    col_margin = 2
 
-    no_row = calc_rownum(files, screen_width, margin_base)
+    for rownum in  1..files.length do
 
-    # 改善余地：row_ary は名前が変か？
-    row_ary = []
-    files.each_slice(no_row) { |ary|
-      row_ary << ary
-    }
+      matrix = [] # Array<Array<String(カラム毎のファイル名の縦並び)>>
+      files.each_slice(rownum) { |col|
+        matrix << col
+      }
 
-    # margin はそのカラムの最大ファイル長 - 自身のファイル長 + col_margin
-    for index_row in (0..no_row-1) do
-
-      #  p ' ---'
-      #  print index_row, max_length
-
-
-      for row in row_ary do
-        #    p row
-        max_length = row.max_by{ |item| item.to_s.length }.length
-
-        margin_length = margin_base + max_length
-        print row[index_row].to_s.ljust(margin_length)
+      collen = [] # Array<Integer(カラム毎の文字長)>
+      matrix.each_with_index do |col, i|
+        # 行の最後のマージンは除外
+        margin = (i == matrix.length - 1) ? 0 : col_margin
+        collen << col.max_by{ |item| item.to_s.length }.length + margin
       end
-      print "\n"
 
+      if (collen.inject(:+) < screen_width)
+
+        for index_row in (0..rownum-1) do
+
+          matrix.each_with_index do |col, i|
+            print col[index_row].to_s.ljust(collen[i])
+          end
+          print "\n"
+          
+        end
+        
+        break
+      end
+      
     end
 
   end
@@ -282,13 +260,6 @@ class Column_Printer
     end
   end
 
-  # ディレクトリ内ファイル一覧の表示
-  # @param [String] dir   表示対象ファイルのあるディレクトリ
-  # @param [Array<String>]  files 表示対象ファイル
-  def print_dirs(dir, files)
-    print_files(files)
-  end
-
 end
 
 # パラメータをオプションとパスに分解
@@ -299,7 +270,8 @@ def args_parse
   paths   = []
   end_option = false
 
-  for arg in ARGV
+#  for arg in ARGV
+  ARGV.each do |arg|
     if (arg.to_s == "--")
       end_option = true
       next
@@ -344,9 +316,7 @@ def get_file_list(path_ary)
     prev_dir_executable = true
 
     # 改善余地：path が同じでも毎回全体をチェックするので非効率
-    pname.descend {|pitem|
-
-      #p pitem
+    pname.descend { |pitem|
 
       # 上位ディレクトリが展開不可ならアクセス不可エラー
       if(!prev_dir_executable)
@@ -354,7 +324,7 @@ def get_file_list(path_ary)
         break
       end
 
-      if (pitem.file?)
+      if (pitem.file? || pitem.chardev? || pitem.blockdev? || pitem.pipe? || pitem.socket? || pitem.symlink?)
         if (directory_path)
           errors << ["e004", path]
           break
@@ -381,7 +351,7 @@ def get_file_list(path_ary)
         prev_dir_executable = pitem.executable?
       end
 
-      if (!pitem.file? && !pitem.directory?)
+      if (!pitem.file? && !pitem.directory? && !pitem.chardev? && !pitem.blockdev? && !pitem.pipe? && !pitem.socket? && !pitem.symlink?)
         errors << ["e002", path]
         break
       end

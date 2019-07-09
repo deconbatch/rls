@@ -370,7 +370,7 @@ ERRMSG = {
   "e001" => "ls: cannot access " + "%s" + ": Permission denied",
   "e002" => "ls: cannot access " + "%s" + ": No such file or directory",
   "e003" => "ls: cannot open directory " + "%s" + ": Permission denied",
-  "e004" => "ls: cannot open directory " + "%s" + ": Not a directory",
+  "e004" => "ls: cannot access " + "%s" + ": Not a directory",
 }
 
 # エラーを標準エラー出力に出力

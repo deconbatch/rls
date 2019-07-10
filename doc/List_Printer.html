@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: List_Printer
+  
+    &mdash; Documentation by YARD 0.9.20
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "List_Printer";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (L)</a> &raquo;
+    
+    
+    <span class="title">List_Printer</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: List_Printer
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">List_Printer</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>rls</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    
+<p>オプション -l 時の表示</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+  
+    <h2>
+      Constant Summary
+      <small><a href="#" class="constants_summary_toggle">collapse</a></small>
+    </h2>
+
+    <dl class="constants">
+      
+        <dt id="FTYPE-constant" class="">FTYPE =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>file</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>directory</span><span class='tstring_end'>&quot;</span></span>        <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>d</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>characterSpecial</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>c</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>blockSpecial</span><span class='tstring_end'>&quot;</span></span>     <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>b</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>fifo</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>p</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>link</span><span class='tstring_end'>&quot;</span></span>             <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>l</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>socket</span><span class='tstring_end'>&quot;</span></span>           <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>s</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+<span class='rbrace'>}</span></pre></dd>
+      
+        <dt id="FMODE-constant" class="">FMODE =
+          
+        </dt>
+        <dd><pre class="code"><span class='lbrace'>{</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>7</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rwx</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>6</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rw-</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>5</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>r-x</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>4</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>r--</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>3</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-wx</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>2</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>-w-</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>1</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>--x</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>0</span><span class='tstring_end'>&quot;</span></span> <span class='op'>=&gt;</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>---</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+<span class='rbrace'>}</span></pre></dd>
+      
+    </dl>
+  
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_dirs-instance_method" title="#print_dirs (instance method)">#<strong>print_dirs</strong>(dir, files)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>ディレクトリ内ファイル一覧の表示.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_files-instance_method" title="#print_files (instance method)">#<strong>print_files</strong>(dir = &quot;&quot;, files)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>ファイル一覧の表示.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#print_link-instance_method" title="#print_link (instance method)">#<strong>print_link</strong>(f)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>表示対象ディレクトリがリンクだった場合の表示.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="print_dirs-instance_method">
+  
+    #<strong>print_dirs</strong>(dir, files)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>ディレクトリ内ファイル一覧の表示</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>dir</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>表示対象ファイルのあるディレクトリ</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>files</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>表示対象ファイル</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+172
+173
+174
+175
+176
+177
+178
+179</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'rls', line 172</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_dirs'>print_dirs</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='comma'>,</span> <span class='id identifier rubyid_files'>files</span><span class='rparen'>)</span>
+  <span class='comment'># 改善余地：リンク単体の表示が泥縄
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span> <span class='op'>&amp;&amp;</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_ftype'>ftype</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>link</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_print_link'>print_link</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='rparen'>)</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_print_files'>print_files</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='comma'>,</span> <span class='id identifier rubyid_files'>files</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_files-instance_method">
+  
+    #<strong>print_files</strong>(dir = &quot;&quot;, files)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>ファイル一覧の表示</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>dir</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>&quot;&quot;</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>表示対象ファイルのあるディレクトリ</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>files</span>
+      
+      
+        <span class='type'>(<tt>Array&lt;String&gt;</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>表示対象ファイル</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'rls', line 34</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_files'>print_files</span><span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_files'>files</span><span class='rparen'>)</span>
+
+  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>==</span> <span class='int'>0</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_puts'>puts</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>total 0</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>return</span> <span class='kw'>nil</span>
+  <span class='kw'>end</span>
+
+  <span class='comment'># ディレクトリの末尾を / にする
+</span>  <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_dir'>dir</span> <span class='op'>+=</span> <span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_block_total'>block_total</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_stats'>stats</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='rbracket'>]</span>
+  <span class='id identifier rubyid_len_nlink'>len_nlink</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_len_uname'>len_uname</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_len_gname'>len_gname</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_len_size'>len_size</span>  <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_len_major'>len_major</span> <span class='op'>=</span> <span class='int'>0</span>
+  <span class='id identifier rubyid_len_minor'>len_minor</span> <span class='op'>=</span> <span class='int'>0</span>
+
+  <span class='id identifier rubyid_files'>files</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_item'>item</span><span class='op'>|</span>
+
+    <span class='id identifier rubyid_f'>f</span> <span class='op'>=</span> <span class='id identifier rubyid_dir'>dir</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>+</span> <span class='id identifier rubyid_item'>item</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+
+    <span class='comment'># ファイルにアクセス可能かテスト
+</span>    <span class='kw'>begin</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_ftype'>ftype</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>link</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_stat'>stat</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_lstat'>lstat</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_stat'>stat</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_stat'>stat</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+    <span class='kw'>rescue</span>
+      <span class='id identifier rubyid_len_nlink'>len_nlink</span> <span class='op'>=</span> <span class='int'>1</span>
+      <span class='id identifier rubyid_len_uname'>len_uname</span> <span class='op'>=</span> <span class='int'>1</span>
+      <span class='id identifier rubyid_len_gname'>len_gname</span> <span class='op'>=</span> <span class='int'>1</span>
+      <span class='id identifier rubyid_len_size'>len_size</span>  <span class='op'>=</span> <span class='int'>1</span>
+
+      <span class='id identifier rubyid_stats'>stats</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+        <span class='label'>type:</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>?</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='label'>mode:</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>?????????</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='label'>nlink:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>?</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='label'>uname:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>?</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='label'>gname:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>?</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='label'>size:</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>?</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='label'>date:</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>           ?</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+        <span class='label'>name:</span>  <span class='id identifier rubyid_item'>item</span><span class='comma'>,</span>
+      <span class='rbrace'>}</span>
+      
+      <span class='kw'>next</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_stat'>stat</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_f_name'>f_name</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_ftype'>ftype</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>link</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_stat'>stat</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_lstat'>lstat</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_f_name'>f_name</span> <span class='op'>=</span> <span class='id identifier rubyid_item'>item</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> -&gt; </span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_readlink'>readlink</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_stat'>stat</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_stat'>stat</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_f_name'>f_name</span> <span class='op'>=</span> <span class='id identifier rubyid_item'>item</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_block_total'>block_total</span> <span class='op'>+=</span> <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_blocks'>blocks</span>
+
+    <span class='id identifier rubyid_f_type'>f_type</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#FTYPE-constant" title="List_Printer::FTYPE (constant)">FTYPE</a></span></span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_ftype'>ftype</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='const'><span class='object_link'><a href="#FTYPE-constant" title="List_Printer::FTYPE (constant)">FTYPE</a></span></span><span class='lbracket'>[</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_ftype'>ftype</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span>
+
+    <span class='id identifier rubyid_f_mode'>f_mode</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#FMODE-constant" title="List_Printer::FMODE (constant)">FMODE</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_mode'>mode</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>3</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="#FMODE-constant" title="List_Printer::FMODE (constant)">FMODE</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_mode'>mode</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>2</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="#FMODE-constant" title="List_Printer::FMODE (constant)">FMODE</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_mode'>mode</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_mode'>mode</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>4</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>1</span><span class='tstring_end'>&quot;</span></span>
+      <span class='comment'># sticky bit
+</span>      <span class='id identifier rubyid_f_mode'>f_mode</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>t</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>2</span><span class='tstring_end'>&quot;</span></span>
+      <span class='comment'># setgid
+</span>      <span class='id identifier rubyid_f_mode'>f_mode</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>4</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>s</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>4</span><span class='tstring_end'>&quot;</span></span>
+      <span class='comment'># setuid
+</span>      <span class='id identifier rubyid_f_mode'>f_mode</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>7</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>s</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_f_nlink'>f_nlink</span> <span class='op'>=</span> <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_nlink'>nlink</span>
+    <span class='id identifier rubyid_f_uname'>f_uname</span> <span class='op'>=</span> <span class='const'>Etc</span><span class='period'>.</span><span class='id identifier rubyid_getpwuid'>getpwuid</span><span class='lparen'>(</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_uid'>uid</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
+    <span class='id identifier rubyid_f_gname'>f_gname</span> <span class='op'>=</span> <span class='const'>Etc</span><span class='period'>.</span><span class='id identifier rubyid_getgrgid'>getgrgid</span><span class='lparen'>(</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_gid'>gid</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
+    <span class='id identifier rubyid_f_size'>f_size</span>  <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_f_major'>f_major</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_f_minor'>f_minor</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_f_type'>f_type</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>b</span><span class='tstring_end'>&quot;</span></span> <span class='op'>||</span> <span class='id identifier rubyid_f_type'>f_type</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>c</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_f_major'>f_major</span> <span class='op'>=</span> <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_rdev_major'>rdev_major</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+      <span class='id identifier rubyid_f_minor'>f_minor</span> <span class='op'>=</span> <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_rdev_minor'>rdev_minor</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_f_size'>f_size</span> <span class='op'>=</span> <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_date_format'>date_format</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='const'>Date</span><span class='period'>.</span><span class='id identifier rubyid_today'>today</span> <span class='op'>-</span> <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_mtime'>mtime</span><span class='period'>.</span><span class='id identifier rubyid_to_date'>to_date</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_abs'>abs</span> <span class='op'>&gt;</span> <span class='int'>181</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%b %e %_5Y</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%b %e %H:%M</span><span class='tstring_end'>&quot;</span></span>
+    <span class='id identifier rubyid_f_date'>f_date</span> <span class='op'>=</span> <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_mtime'>mtime</span><span class='period'>.</span><span class='id identifier rubyid_strftime'>strftime</span><span class='lparen'>(</span><span class='id identifier rubyid_date_format'>date_format</span><span class='rparen'>)</span>
+
+    <span class='id identifier rubyid_len_nlink'>len_nlink</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_f_nlink'>f_nlink</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_len_nlink'>len_nlink</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_f_nlink'>f_nlink</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>:</span> <span class='id identifier rubyid_len_nlink'>len_nlink</span>
+    <span class='id identifier rubyid_len_uname'>len_uname</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_f_uname'>f_uname</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_len_uname'>len_uname</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_f_uname'>f_uname</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>:</span> <span class='id identifier rubyid_len_uname'>len_uname</span>
+    <span class='id identifier rubyid_len_gname'>len_gname</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_f_gname'>f_gname</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_len_gname'>len_gname</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_f_gname'>f_gname</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>:</span> <span class='id identifier rubyid_len_gname'>len_gname</span>
+    <span class='id identifier rubyid_len_major'>len_major</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_f_major'>f_major</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_len_major'>len_major</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_f_major'>f_major</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>:</span> <span class='id identifier rubyid_len_major'>len_major</span>
+    <span class='id identifier rubyid_len_minor'>len_minor</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_f_minor'>f_minor</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_len_minor'>len_minor</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_f_minor'>f_minor</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>:</span> <span class='id identifier rubyid_len_minor'>len_minor</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_f_size'>f_size</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_len_size'>len_size</span>  <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_len_major'>len_major</span> <span class='op'>+</span> <span class='id identifier rubyid_len_minor'>len_minor</span> <span class='op'>+</span> <span class='int'>2</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_len_size'>len_size</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_len_major'>len_major</span> <span class='op'>+</span> <span class='id identifier rubyid_len_minor'>len_minor</span> <span class='op'>+</span> <span class='int'>2</span> <span class='op'>:</span> <span class='id identifier rubyid_len_size'>len_size</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_len_size'>len_size</span>  <span class='op'>=</span> <span class='lparen'>(</span><span class='id identifier rubyid_f_size'>f_size</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&gt;</span> <span class='id identifier rubyid_len_size'>len_size</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='id identifier rubyid_f_size'>f_size</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>:</span> <span class='id identifier rubyid_len_size'>len_size</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_stats'>stats</span> <span class='op'>&lt;&lt;</span> <span class='lbrace'>{</span>
+      <span class='label'>type:</span>  <span class='id identifier rubyid_f_type'>f_type</span><span class='comma'>,</span>
+      <span class='label'>mode:</span>  <span class='id identifier rubyid_f_mode'>f_mode</span><span class='comma'>,</span>
+      <span class='label'>nlink:</span> <span class='id identifier rubyid_f_nlink'>f_nlink</span><span class='comma'>,</span>
+      <span class='label'>uname:</span> <span class='id identifier rubyid_f_uname'>f_uname</span><span class='comma'>,</span>
+      <span class='label'>gname:</span> <span class='id identifier rubyid_f_gname'>f_gname</span><span class='comma'>,</span>
+      <span class='label'>size:</span>  <span class='id identifier rubyid_f_size'>f_size</span><span class='comma'>,</span>
+      <span class='label'>major:</span> <span class='id identifier rubyid_f_major'>f_major</span><span class='comma'>,</span>
+      <span class='label'>minor:</span> <span class='id identifier rubyid_f_minor'>f_minor</span><span class='comma'>,</span>
+      <span class='label'>date:</span>  <span class='id identifier rubyid_f_date'>f_date</span><span class='comma'>,</span>
+      <span class='label'>name:</span>  <span class='id identifier rubyid_f_name'>f_name</span><span class='comma'>,</span>
+    <span class='rbrace'>}</span>
+
+  <span class='kw'>end</span>
+
+  <span class='comment'># 改善余地：ブロック数が ls -s の値の 2倍が返ってくるようだが理屈がわからないから本当にそうなのか不明
+</span>  <span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_sprintf'>sprintf</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>total %d</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='lparen'>(</span><span class='id identifier rubyid_block_total'>block_total</span> <span class='op'>/</span> <span class='int'>2</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_to_i'>to_i</span><span class='rparen'>)</span> <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_dir'>dir</span> <span class='op'>!=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stats'>stats</span><span class='period'>.</span><span class='id identifier rubyid_each'>each</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_s'>s</span><span class='op'>|</span>
+    <span class='kw'>if</span> <span class='lparen'>(</span><span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:size</span><span class='rbracket'>]</span> <span class='op'>==</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_sprintf'>sprintf</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%s%s %*s %-*s %-*s %*s, %*s %s %s</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+                   <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:mode</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_len_nlink'>len_nlink</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:nlink</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_len_uname'>len_uname</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:uname</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_len_gname'>len_gname</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:gname</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_len_major'>len_major</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:major</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_len_minor'>len_minor</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:minor</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:date</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_sprintf'>sprintf</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%s%s %*s %-*s %-*s %*s %s %s</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+                   <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:type</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:mode</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_len_nlink'>len_nlink</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:nlink</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_len_uname'>len_uname</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:uname</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_len_gname'>len_gname</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:gname</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_len_size'>len_size</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:size</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:date</span><span class='rbracket'>]</span><span class='comma'>,</span> <span class='id identifier rubyid_s'>s</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="print_link-instance_method">
+  
+    #<strong>print_link</strong>(f)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>表示対象ディレクトリがリンクだった場合の表示</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>f</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>表示対象リンク</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'rls', line 183</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_print_link'>print_link</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_stat'>stat</span> <span class='op'>=</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_lstat'>lstat</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_f_name'>f_name</span> <span class='op'>=</span> <span class='id identifier rubyid_f'>f</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span> <span class='op'>+</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> -&gt; </span><span class='tstring_end'>&quot;</span></span> <span class='op'>+</span> <span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_readlink'>readlink</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_f_type'>f_type</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='const'><span class='object_link'><a href="#FTYPE-constant" title="List_Printer::FTYPE (constant)">FTYPE</a></span></span><span class='period'>.</span><span class='id identifier rubyid_has_key?'>has_key?</span><span class='lparen'>(</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_ftype'>ftype</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span><span class='rparen'>)</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='const'><span class='object_link'><a href="#FTYPE-constant" title="List_Printer::FTYPE (constant)">FTYPE</a></span></span><span class='lbracket'>[</span><span class='const'>File</span><span class='period'>.</span><span class='id identifier rubyid_ftype'>ftype</span><span class='lparen'>(</span><span class='id identifier rubyid_f'>f</span><span class='rparen'>)</span><span class='rbracket'>]</span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_f_mode'>f_mode</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="#FMODE-constant" title="List_Printer::FMODE (constant)">FMODE</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_mode'>mode</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>3</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="#FMODE-constant" title="List_Printer::FMODE (constant)">FMODE</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_mode'>mode</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>2</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='rbracket'>]</span> <span class='op'>+</span> <span class='const'><span class='object_link'><a href="#FMODE-constant" title="List_Printer::FMODE (constant)">FMODE</a></span></span><span class='lbracket'>[</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_mode'>mode</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+  <span class='kw'>case</span> <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_mode'>mode</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span><span class='lparen'>(</span><span class='int'>8</span><span class='rparen'>)</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>4</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>1</span><span class='tstring_end'>&quot;</span></span>
+    <span class='comment'># sticky bit
+</span>    <span class='id identifier rubyid_f_mode'>f_mode</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>t</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>2</span><span class='tstring_end'>&quot;</span></span>
+    <span class='comment'># setgid
+</span>    <span class='id identifier rubyid_f_mode'>f_mode</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>4</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>s</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>when</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>4</span><span class='tstring_end'>&quot;</span></span>
+    <span class='comment'># setuid
+</span>    <span class='id identifier rubyid_f_mode'>f_mode</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>7</span><span class='comma'>,</span> <span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>s</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+  <span class='id identifier rubyid_f_nlink'>f_nlink</span> <span class='op'>=</span> <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_nlink'>nlink</span>
+  <span class='id identifier rubyid_f_uname'>f_uname</span> <span class='op'>=</span> <span class='const'>Etc</span><span class='period'>.</span><span class='id identifier rubyid_getpwuid'>getpwuid</span><span class='lparen'>(</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_uid'>uid</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
+  <span class='id identifier rubyid_f_gname'>f_gname</span> <span class='op'>=</span> <span class='const'>Etc</span><span class='period'>.</span><span class='id identifier rubyid_getgrgid'>getgrgid</span><span class='lparen'>(</span><span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_gid'>gid</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span>
+  <span class='id identifier rubyid_f_size'>f_size</span>  <span class='op'>=</span> <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>
+  <span class='id identifier rubyid_date_format'>date_format</span> <span class='op'>=</span> <span class='lparen'>(</span><span class='lparen'>(</span><span class='const'>Date</span><span class='period'>.</span><span class='id identifier rubyid_today'>today</span> <span class='op'>-</span> <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_mtime'>mtime</span><span class='period'>.</span><span class='id identifier rubyid_to_date'>to_date</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_abs'>abs</span> <span class='op'>&gt;</span> <span class='int'>181</span><span class='rparen'>)</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%b %e %_5Y</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%b %e %H:%M</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_f_date'>f_date</span> <span class='op'>=</span> <span class='id identifier rubyid_stat'>stat</span><span class='period'>.</span><span class='id identifier rubyid_mtime'>mtime</span><span class='period'>.</span><span class='id identifier rubyid_strftime'>strftime</span><span class='lparen'>(</span><span class='id identifier rubyid_date_format'>date_format</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid_puts'>puts</span> <span class='id identifier rubyid_sprintf'>sprintf</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>%s%s %s %s %s %s %s %s</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+               <span class='id identifier rubyid_f_type'>f_type</span><span class='comma'>,</span> <span class='id identifier rubyid_f_mode'>f_mode</span><span class='comma'>,</span> <span class='id identifier rubyid_f_nlink'>f_nlink</span><span class='comma'>,</span> <span class='id identifier rubyid_f_uname'>f_uname</span><span class='comma'>,</span> <span class='id identifier rubyid_f_gname'>f_gname</span><span class='comma'>,</span> <span class='id identifier rubyid_f_size'>f_size</span><span class='comma'>,</span> <span class='id identifier rubyid_f_date'>f_date</span><span class='comma'>,</span> <span class='id identifier rubyid_f_name'>f_name</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Thu Jul 11 00:36:37 2019 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.20 (ruby-2.6.3).
+</div>
+
+    </div>
+  </body>
+</html>

@@ -10,138 +10,150 @@
 ** 要件
    - 最新版の Ruby を用いて `ls` コマンドを作成すること。
    - オプションとして、最低限 `-a`, `-l`, `-r`を実装。`-al`や`-alr`などのように、組み合わされても使えるように。
-** 実施不可事項
+** 開発環境
+   - OS
+     - CentOS Linux 7.6.1810
+   - Ruby
+     - ruby 2.6.3p62
+   - ls のリファレンス実装
+     - GNU coreutils version.8.22-21
+** 実現不能だった事項
    - [ ] ロケール対応（メッセージ、日付フォーマット）
-   - [ ] ls -l の SELinux セキュリティコンテキスト表示
+     - テストは LANG=C 固定で実施
+   - [ ] ls -l の SELinux セキュリティコンテキスト表示（バーミッション直後のドット表示）
      : ls -l /
      : total 32
      : lrwxrwxrwx    1 root root    7 Sep 28  2018 bin -> usr/bin
      : dr-xr-xr-x.   5 root root 4096 May 23 21:24 boot
      : パーミッションの後のドット
-     - [ ] セキュリティコンテキスト表示は無い前提でテストする
+     - セキュリティコンテキスト表示は無い前提でテストする
        - 参考：http://tkak.hatenablog.com/entry/2013/01/04/151248
-   - [-] エラーメッセージと結果の表示順
-     - 下記の順？
-       - ls: cannot access : Permission denied
-       - ls: cannot access : No such file or directory
-       - ファイルリスト
-       - ls: cannot open directory
-       - ディレクトリリスト
-     - [X] oioi と /etc/oioi の順番が合わない、パラメータ出現順？
-       : ls -a /etc/oioi oioi
-       : ls: cannot access /etc/oioi: No such file or directory
-       : ls: cannot access oioi: No such file or directory
-       : 
-       : ls -a oioi /etc/oioi     
-       : ls: cannot access oioi: No such file or directory
-       : ls: cannot access /etc/oioi: No such file or directory
-       : 
-     - [ ] エラーメッセージの順番が合わない ls の仕様を知るためにソース読むべきでは？
-       : ls -a /etc/yum.conf root.thing rls/ /var/log/httpd /root/temp /root /var/log/httpd/acces oioi /etc/oioi
-       : ls: cannot access root.thing: No such file or directory
-       : ls: cannot access rls/: Not a directory
-       : ls: cannot access /root/temp: Permission denied
-       : ls: cannot access /var/log/httpd/acces: Permission denied
-       : ls: cannot access oioi: No such file or directory
-       : ls: cannot access /etc/oioi: No such file or directory
-       : /etc/yum.conf
-       : 
-       : ls: cannot open directory /root: Permission denied
-       : ls: cannot open directory /var/log/httpd: Permission denied
-       : 
-       : 
-       : rls -a /etc/yum.conf root.thing rls/ /var/log/httpd /root/temp /root /var/log/httpd/acces oioi /etc/oioi
-       : ls: cannot access /root/temp: Permission denied
-       : ls: cannot access /var/log/httpd/acces: Permission denied
-       : ls: cannot open directory rls/: Not a directory
-       : ls: cannot access root.thing: No such file or directory
-       : ls: cannot access oioi: No such file or directory
-       : ls: cannot access /etc/oioi: No such file or directory
-       : /etc/yum.conf  
-       : 
-       : ls: cannot open directory /root: Permission denied
-       : ls: cannot open directory /var/log/httpd: Permission denied
-       : 
-     - [X] 結果例
-       : ls -a rls /root/temp /var/log/httpd
-       : ls: cannot access /root/temp: Permission denied
-       : rls
-       : 
-       : ls: cannot open directory /var/log/httpd: Permission denied
-     - [X] 結果例
-       : ls -a rls root.thing 
-       : root.thing
-       : 
-       : rls:
-       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
-       : 
-       : ls -a rls root.thing oioi
-       : ls: cannot access oioi: No such file or directory
-       : root.thing
-       : 
-       : rls:
-       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
-       : 
-       : ls -a  root.thing oioi
-       : ls: cannot access oioi: No such file or directory
-       : root.thing
-       : 
-       : ls -a  rls oioi
-       : ls: cannot access oioi: No such file or directory
-       : rls:
-       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
-* ソースドキュメント
+   - [ ] オリジナルの ls でパイプに通すとエラーメッセージが表示されなくなる場合がある（テストケース case.03）
+     : パイプに通すとエラーメッセージが表示されなくなる場合
+     : ls ./dir.not.executable/ 
+     : ls: cannot access ./dir.not.executable/file01: Permission denied
+     : ls: cannot access ./dir.not.executable/file02: Permission denied
+     : file01  file02
+     : 
+     : ls ./dir.not.executable/ | cat
+     : file01
+     : file02
+     : 
+     : 同じパスで -l を付けるとパイプに通しても表示される
+     : ls -l ./dir.not.executable/ 
+     : ls: cannot access ./dir.not.executable/file01: Permission denied
+     : ls: cannot access ./dir.not.executable/file02: Permission denied
+     : total 0
+     : ?????????? ? ? ? ?            ? file01
+     : ?????????? ? ? ? ?            ? file02
+     : 
+     : ls -l ./dir.not.executable/ | cat
+     : ls: cannot access ./dir.not.executable/file01: Permission denied
+     : ls: cannot access ./dir.not.executable/file02: Permission denied
+     : total 0
+     : ?????????? ? ? ? ?            ? file01
+     : ?????????? ? ? ? ?            ? file02
+     : 
+   - [ ] オリジナルの ls -l で表示対象ではないファイルのユーザ名等の長さがカラム幅に反映される？（テストケース case.03）
+     : $ ls -l test.case.03.sh
+     : -rwxr-xr-x 1 kat kat 501 Jul 10 23:56 test.case.03.sh
+     : 
+     : $ ls -l test.case.03.sh /root
+     : -rwxr-xr-x  1 kat  kat   501 Jul 10 23:56 test.case.03.sh
+     : 
+     : ls: cannot open directory /root: Permission denied
+     : 
+     : $ ls -l test.case.03.sh /var/log/httpd/
+     : -rwxr-xr-x 1 kat  kat   501 Jul 10 23:56 test.case.03.sh
+     : 
+     : $ ls: cannot open directory /var/log/httpd/: Permission denied
+     : 
+* ドキュメント
   - doc/ ディレクトリに格納
 * テスト
+  - 思いついたケースを試してみたレベルです。プロダクションレベルのテストは実施できておりません。
 ** テストケース
 *** オプションのパース
-    - [ ] オプション無し	:case.00:
-    - [ ] '-a', '-l', '-r' それぞれを単体で指定	:case.01:
-    - [ ] '-al' や '-alr' などのように組み合わして指定	:case.00:
-    - [ ] パスの前後に指定	:case.00:
-    - [ ] '--' の後に書いたオプションはパス扱いになること	:case.00:
-    - [ ] '- a' はパス扱いになること	:case.00:
+    - [X] オプション無し	:case.00:
+    - [X] '-a', '-l', '-r' それぞれを単体で指定	:case.01:
+    - [X] '-al' や '-alr' などのように組み合わして指定	:case.00:
+    - [X] パスの前後に指定	:case.00:
+    - [X] '--' の後に書いたオプションはパス扱いになること	:case.00:
+    - [X] '- a' はパス扱いになること	:case.00:
 *** パスのパース
-    - [ ] パス無し	:case.01:
-    - [ ] 単体で指定	:case.01:
-    - [ ] 複数指定	:case.01:
+    - [X] パス無し	:case.01:
+    - [X] 単体で指定	:case.01:
+    - [X] 複数指定	:case.01:
 *** パス、ファイルの種類
-    - [ ] 相対パス	:case.01:
-    - [ ] 絶対パス	:case.01:
-    - [ ] ファイル	:case.01:
-    - [ ] ディレクトリ、最後 / 無し	:case.01:
-    - [ ] ディレクトリ、最後 / 有り	:case.01:
-    - [ ] ディレクトリ/*	:case.01:
-    - [ ] *	:case.02:
-    - [ ] キャラクタデバイス、ブロックデバイス、fifo、ソケット、シンボリックリンク	:case.04:
-    - [ ] 実行権限無しのディレクトリ	:case.03:
-    - [ ] 実行権限無しのディレクトリ中のファイル	:case.03:
+    - [X] 相対パス	:case.01:
+    - [X] 絶対パス	:case.01:
+    - [X] ファイル	:case.01:
+    - [X] ディレクトリ、最後 / 無し	:case.01:
+    - [X] ディレクトリ、最後 / 有り	:case.01:
+    - [X] ディレクトリ/*	:case.01:
+    - [X] *	:case.02:
+    - [X] キャラクタデバイス、ブロックデバイス、fifo、ソケット、シンボリックリンク	:case.04:
+    - [X] 実行権限無しのディレクトリ	:case.03:
+    - [X] 実行権限無しのディレクトリ中のファイル	:case.03:
 *** -l オプション無しカラム表示
-    - [ ] パイプ、ファイルへの出力が 1カラムになること	:case.01:
-    - [ ] 一行で画面幅に収まるパターン	:case.05:
-    - [ ] 複数行にわたるパターン	:case.05:
-    - [ ] 同じパス指定で画面幅を変更して行数が変更になるパターン	:case.05:
-    - [ ] 最大ファイル名長が画面幅を超えるパターン	:case.05:
+    - [X] パイプ、ファイルへの出力が 1カラムになること	:case.01:
+    - [X] 一行で画面幅に収まるパターン	:case.05:
+    - [X] 複数行にわたるパターン	:case.05:
+    - [X] 同じパス指定で画面幅を変更して行数が変更になるパターン	:case.05:
+    - [X] 最大ファイル名長が画面幅を超えるパターン	:case.05:
 *** -l オプションありリスト表示
-    - [ ] 日付 182日以上過去/未来は時刻ではなく年を表示	:case.01:
-    - [ ] スティッキービット、setuid、setgid の表示	:case.03:
-    - [ ] ディレクトリ中のシンボリックリンクの表示	:case.01:
-    - [ ] シンボリックリンク単体の表示	:case.04:
-    - [ ] ディレクトリ表示の場合に合計ブロック数表示	:case.01:
-    - [ ] ファイルのみの表示の場合には合計ブロック数表示無し	:case.01:
-    - [ ] ファイル種類、パーミッション、ハードリンク数、ユーザ名、グループ名、サイズ、最終更新日、ファイル名の表示	:case.01:
-    - [ ] 複数ディレクトリ表示	:case.01:
+    - [X] 日付 182日以上過去/未来は時刻ではなく年を表示	:case.01:
+    - [X] スティッキービット、setuid、setgid の表示	:case.03:
+    - [X] ディレクトリ中のシンボリックリンクの表示	:case.01:
+    - [X] シンボリックリンク単体の表示	:case.04:
+    - [X] ディレクトリ表示の場合に合計ブロック数表示	:case.01:
+    - [X] ファイルのみの表示の場合には合計ブロック数表示無し	:case.01:
+    - [X] ファイル種類、パーミッション、ハードリンク数、ユーザ名、グループ名、サイズ、最終更新日、ファイル名の表示	:case.01:
+    - [X] 複数ディレクトリ表示	:case.01:
 *** -a 有無
-    - [ ] -a 有りと無しのパターン	:case.00:case.01:
+    - [X] -a 有りと無しのパターン	:case.00:case.01:
 *** -r 有無
-    - [ ] -r 有りと無しのパターン	:case.00:case.01:
+    - [X] -r 有りと無しのパターン	:case.00:case.01:
 *** エラー表示
-    - [ ] 上位ディレクトリに実行権限が無い場合の cannot access Permission denied エラー	:case.03:
-    - [ ] 存在しないファイル、ディレクトリ時の cannot access No such file or directory エラー	:case.03:
-    - [ ] パスに指定したディレクトリに読み込み権限が無い場合の cannot open directory Permission denied エラー	:case.03:
-    - [ ] 存在するファイルと同名のパスを / 付きで指定した際の cannot access Not a directory エラー	:case.03:
+    - [X] 上位ディレクトリに実行権限が無い場合の cannot access Permission denied エラー	:case.03:
+    - [X] 存在しないファイル、ディレクトリ時の cannot access No such file or directory エラー	:case.03:
+    - [X] パスに指定したディレクトリに読み込み権限が無い場合の cannot open directory Permission denied エラー	:case.03:
+    - [X] 存在するファイルと同名のパスを / 付きで指定した際の cannot access Not a directory エラー	:case.03:
 ** テスト結果
-   - test/ ディレクトリに格納
+*** 概要
+    - test/ ディレクトリ以下にテストケース毎に別ディレクトリで格納
+    - ls と rls の結果の diff を取るシェルスクリプトを作成して実行
+      - test.case.nn.sh テスト実行シェルスクリプト
+      - results/
+	- dif.err.* 標準エラー出力の差異
+	- dif.out.* 標準出力の差異
+	- ols.err.* オリジナルの ls の標準エラー出力
+	- ols.out.* オリジナルの ls の標準出力
+	- rls.err.* 今回作成 rls の標準エラー出力
+	- rls.out.* 今回作成 rls の標準出力
+    - リダイレクトではなく画面表示のテスト（case.05）は、ターミナルに出力した結果を手作業で貼り付け
+*** ケース毎の説明
+    - case.00
+      - オプションのパース
+    - case.01
+      - パスのパース
+      - パス、ファイルの種類
+      - -l オプション無しカラム表示でのパイプ、ファイルへの出力
+      - -l オプションありリスト表示
+      - -a オプションあり/なし
+      - -r オプションあり/なし
+    - case.02
+      - パスに * のみ指定
+      - テスト結果で生成されるファイルがテストに影響を与えるため、結果は dir01/results/ に格納
+    - case.03
+      - エラー表示
+      - -l オプションありリスト表示でのスティッキービット、setuid、setgid の表示
+      - 実行権限無しのディレクトリ、およびそのディレクトリ中のファイル
+    - case.04
+      - キャラクタデバイス、ブロックデバイス、fifo、ソケット、シンボリックリンク
+    - case.05
+      - -l オプション無しカラム表示での画面への出力
+      - テスト結果は results.txt
 * スケジューリング
 ** 要件整理
    - `ls`コマンドを作成
@@ -287,7 +299,7 @@
        : 
        : ./rls -l /etc/grub2.cfg
        : ls: cannot access /etc/grub2.cfg: No such file or directory
-   - [ ] /dev の表示形式が異なる
+   - [X] /dev の表示形式が異なる
 ** オプションの処理
    - [X] -- でオプション終了の対応
    - [X] -a 対応
@@ -341,6 +353,79 @@
      - [X] 整列表示
    - [X] ファイルやパイプに繋いだ時の表示対応
      - STDOUT.isatty
+** エラーメッセージ
+   - [X] エラーメッセージと結果の表示順
+     - [X] 下記の順？
+       - ls: cannot access : Permission denied
+       - ls: cannot access : No such file or directory
+       - ファイルリスト
+       - ls: cannot open directory
+       - ディレクトリリスト
+     - [X] oioi と /etc/oioi の順番が合わない、パラメータ出現順？
+       : ls -a /etc/oioi oioi
+       : ls: cannot access /etc/oioi: No such file or directory
+       : ls: cannot access oioi: No such file or directory
+       : 
+       : ls -a oioi /etc/oioi     
+       : ls: cannot access oioi: No such file or directory
+       : ls: cannot access /etc/oioi: No such file or directory
+       : 
+     - [X] 結果例
+       : ls -a rls /root/temp /var/log/httpd
+       : ls: cannot access /root/temp: Permission denied
+       : rls
+       : 
+       : ls: cannot open directory /var/log/httpd: Permission denied
+     - [X] 結果例
+       : ls -a rls root.thing 
+       : root.thing
+       : 
+       : rls:
+       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
+       : 
+       : ls -a rls root.thing oioi
+       : ls: cannot access oioi: No such file or directory
+       : root.thing
+       : 
+       : rls:
+       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
+       : 
+       : ls -a  root.thing oioi
+       : ls: cannot access oioi: No such file or directory
+       : root.thing
+       : 
+       : ls -a  rls oioi
+       : ls: cannot access oioi: No such file or directory
+       : rls:
+       : .  ..  .git  .gitignore  LICENSE  README.org  rls  rls~
+   - [X] エラーメッセージの順番をオリジナルに合わせる
+     : オリジナル
+     : cannot open directory XXX: Permission denied 以外のエラーメッセージはパラメータの出現順
+     : cannot open directory XXX: Permission denied はファイル一覧の後に出力
+     : 今回作成版
+     : cannot open directory XXX: Permission denied 以外のエラーメッセージは以下の順に出力、同じ種類のエラーはパラメータ出現順
+     :   cannot access %s: No such file or directory
+     :   cannot access %s: Not a directory
+     :   cannot access %s: Permission denied
+     : cannot open directory XXX: Permission denied はファイル一覧の後に出力
+     : 
+     : $ls /root/not.exist not.exist LICENSE/ /root /root/temp  LICENSE 
+     : ls: cannot access /root/not.exist: Permission denied
+     : ls: cannot access not.exist: No such file or directory
+     : ls: cannot access LICENSE/: Not a directory
+     : ls: cannot access /root/temp: Permission denied
+     : LICENSE
+     : 
+     : ls: cannot open directory /root: Permission denied
+     : 
+     : $rls /root/not.exist not.exist LICENSE/ /root /root/temp  LICENSE 
+     : ls: cannot access not.exist: No such file or directory
+     : ls: cannot access LICENSE/: Not a directory
+     : ls: cannot access /root/not.exist: Permission denied
+     : ls: cannot access /root/temp: Permission denied
+     : LICENSE
+     : 
+     : ls: cannot open directory /root: Permission denied
 * 日次実施事項ログ
 ** 19/07/01
    - 2h	スケジューリング、環境準備
@@ -367,6 +452,10 @@
    - 1h オプション無し時のカラム表示バグ対応とリファクタリング
    - 1h テストケース洗い出し
    - 2h テスト実施
+** 19/07/10
+   - 4h テスト実施、バグ対応
+   - 1h README 整理
+   - 1h ドキュメント作成
 * 参考
 ** ls仕様
    - GNU coreutils ソース
@@ -375,44 +464,3 @@
      - https://mfumi.hatenadiary.org/entry/20111012/1318347200
    - ファイルやパイプに繋いだ時の表示は画面表示と違う
      - https://rcmdnk.com/blog/2017/05/26/computer-linux-bash-zsh/
-* メモ
-** ls -C 動作再現ヒント
-   - 画面幅 `tput cols`
-   - 各カラムのファイル名最大長
-   - ファイル名の間隔 2バイト
-   - 愚直に行数 1から試行して画面幅に収まるカラム数の最大値をカラム数とする。
-   - 画面表示順を横と考えていたのでボツ カラム数決定ロジック
-     - 全ファイル数
-     - 最大ファイル長のファイルを含む行で画面幅に収まるカラム数の最小値、最大値を出す
-       - 両者が同じならそれがカラム数
-       - 行のカラム数の初期値は１から増やしながら探索
-     - 最大ファイル長が同じ複数のファイルがある可能性
-*** files.each_slice(no_row) { |ary|
-["oioi0", "oioi1", "oioi10"]
-["oioi11", "oioi12", "oioi13"]
-["oioi2", "oioi3", "oioi4"]
-["oioi5", "oioi6", "oioi7"]
-["oioi8", "oioi9"]
-*** row_ary
-[["oioi0", "oioi1", "oioi10"], ["oioi11", "oioi12", "oioi13"], ["oioi2", "oioi3", "oioi4"], ["oioi5", "oioi6", "oioi7"], ["oioi8", "oioi9"]]
-***     for row in row_ary do  p row
-["oioi0", "oioi1", "oioi10"]
-["oioi11", "oioi12", "oioi13"]
-["oioi2", "oioi3", "oioi4"]
-["oioi5", "oioi6", "oioi7"]
-["oioi8", "oioi9"]
-** ls -l 仕様
-*** ファイル種類
-    - -	普通のファイル（Regular File）
-    - d	ディレクトリ
-    - l	シンボリックリンク
-    - c	キャラクタデバイス
-    - b	ブロックデバイス
-    - p 名前付きパイプ
-    - s ソケット
-*** パーミッション
-*** ハードリンク数
-*** ユーザ名、グループ名
-*** サイズ
-*** 最終更新日
-*** ファイル名

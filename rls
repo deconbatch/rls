@@ -49,6 +49,8 @@ class List_Printer
     len_uname = 0
     len_gname = 0
     len_size  = 0
+    len_major = 0
+    len_minor = 0
 
     files.each do |item|
 
@@ -111,7 +113,15 @@ class List_Printer
       f_nlink = stat.nlink
       f_uname = Etc.getpwuid(stat.uid).name
       f_gname = Etc.getgrgid(stat.gid).name
-      f_size  = stat.size
+      f_size  = ""
+      f_major = ""
+      f_minor = ""
+      if (f_type == "b" || f_type == "c")
+        f_major = stat.rdev_major.to_s
+        f_minor = stat.rdev_minor.to_s
+      else
+        f_size = stat.size
+      end
 
       date_format = ((Date.today - stat.mtime.to_date).abs > 181) ? "%b %e %_5Y" : "%b %e %H:%M"
       f_date = stat.mtime.strftime(date_format)
@@ -119,7 +129,13 @@ class List_Printer
       len_nlink = (f_nlink.to_s.length > len_nlink) ? f_nlink.to_s.length : len_nlink
       len_uname = (f_uname.to_s.length > len_uname) ? f_uname.to_s.length : len_uname
       len_gname = (f_gname.to_s.length > len_gname) ? f_gname.to_s.length : len_gname
-      len_size  = (f_size.to_s.length > len_size) ? f_size.to_s.length : len_size
+      len_major = (f_major.to_s.length > len_major) ? f_major.to_s.length : len_major
+      len_minor = (f_minor.to_s.length > len_minor) ? f_minor.to_s.length : len_minor
+      if (f_size == "")
+        len_size  = (len_major + len_minor + 2 > len_size) ? len_major + len_minor + 2 : len_size
+      else
+        len_size  = (f_size.to_s.length > len_size) ? f_size.to_s.length : len_size
+      end
 
       stats << {
         type:  f_type,
@@ -128,18 +144,24 @@ class List_Printer
         uname: f_uname,
         gname: f_gname,
         size:  f_size,
+        major: f_major,
+        minor: f_minor,
         date:  f_date,
         name:  f_name,
       }
 
     end
 
-
-    # 改善余地：ls -s の値の 2倍になってるようだが理屈がわからないから本当にそうなのか不明
+    # 改善余地：ブロック数が ls -s の値の 2倍が返ってくるようだが理屈がわからないから本当にそうなのか不明
     puts sprintf("total %d", (block_total / 2).to_i) if (dir != "")
     stats.each do |s|
-      puts sprintf("%s%s %*s %-*s %-*s %*s %s %s",
-                   s[:type], s[:mode], len_nlink, s[:nlink], len_uname, s[:uname], len_gname, s[:gname], len_size, s[:size], s[:date], s[:name])
+      if (s[:size] == "")
+        puts sprintf("%s%s %*s %-*s %-*s %*s, %*s %s %s",
+                     s[:type], s[:mode], len_nlink, s[:nlink], len_uname, s[:uname], len_gname, s[:gname], len_major, s[:major], len_minor, s[:minor], s[:date], s[:name])
+      else
+        puts sprintf("%s%s %*s %-*s %-*s %*s %s %s",
+                     s[:type], s[:mode], len_nlink, s[:nlink], len_uname, s[:uname], len_gname, s[:gname], len_size, s[:size], s[:date], s[:name])
+      end
     end
 
   end
@@ -211,7 +233,7 @@ class Column_Printer
     print_files(files)
   end
 
-  # ファイル一覧を画面に画面幅に合わせたカラム数で表示
+  # ファイル一覧を画面幅に合わせたカラム数で表示
   # @param [Array<String>]  files 表示対象ファイル
   def to_display(files)
 
@@ -229,7 +251,7 @@ class Column_Printer
 
       collen = [] # Array<Integer(カラム毎の文字長)>
       matrix.each_with_index do |col, i|
-        # 行の最後のマージンは除外
+        # 各行の最後のマージンは除外
         margin = (i == matrix.length - 1) ? 0 : col_margin
         collen << col.max_by{ |item| item.to_s.length }.length + margin
       end
@@ -237,12 +259,10 @@ class Column_Printer
       if (collen.inject(:+) < screen_width)
 
         for index_row in (0..rownum-1) do
-
           matrix.each_with_index do |col, i|
             print col[index_row].to_s.ljust(collen[i])
           end
           print "\n"
-          
         end
         
         break
@@ -324,7 +344,24 @@ def get_file_list(path_ary)
         break
       end
 
-      if (pitem.file? || pitem.chardev? || pitem.blockdev? || pitem.pipe? || pitem.socket? || pitem.symlink?)
+      # シンボリックリンクの場合
+      # 改善余地：リンクの処理が後付で泥縄
+      symfile = false
+      symdir = false
+      if (pitem.symlink?)
+        begin
+          if (File.stat(path).directory?)
+            symdir = true
+          else
+            symfile = true
+          end
+        rescue
+          errors << ["e002", path]
+          break
+        end
+      end
+
+      if (pitem.file? || pitem.chardev? || pitem.blockdev? || pitem.pipe? || pitem.socket? || symfile)
         if (directory_path)
           errors << ["e004", path]
           break
@@ -334,7 +371,7 @@ def get_file_list(path_ary)
         end
       end
       
-      if (pitem.directory?)
+      if (pitem.directory? || symdir)
         # 最下位のディレクトリ？
         if (pitem.eql?(pname))
           if (!pitem.readable? || !prev_dir_executable)
@@ -351,6 +388,7 @@ def get_file_list(path_ary)
         prev_dir_executable = pitem.executable?
       end
 
+      # 存在チェック
       if (!pitem.file? && !pitem.directory? && !pitem.chardev? && !pitem.blockdev? && !pitem.pipe? && !pitem.socket? && !pitem.symlink?)
         errors << ["e002", path]
         break
@@ -358,43 +396,50 @@ def get_file_list(path_ary)
 
     }
 
-
   end
 
   return files, dirs, errors
 
 end
 
-# ----------------------------------------------------------------------
+#
+# エラーメッセージ処理
+#
 ERRMSG = {
-  "e001" => "ls: cannot access " + "%s" + ": Permission denied",
-  "e002" => "ls: cannot access " + "%s" + ": No such file or directory",
-  "e003" => "ls: cannot open directory " + "%s" + ": Permission denied",
-  "e004" => "ls: cannot access " + "%s" + ": Not a directory",
+  "e001" => "ls: cannot access %s: Permission denied",
+  "e002" => "ls: cannot access %s: No such file or directory",
+  "e003" => "ls: cannot open directory %s: Permission denied",
+  "e004" => "ls: cannot access %s: Not a directory",
 }
 
 # エラーを標準エラー出力に出力
-# @param [Array<String, String>] errors エラー番号とエラーのあったパス
+# @param [Array<String, String>] errors エラー番号とエラーのあったパスのセット
 def print_errors(errors)
 
   errors.each do |error|
-    STDERR.puts sprintf(ERRMSG[error[0]], error[1].to_s) if (ERRMSG.has_key?(error[0]))
+    if (ERRMSG.has_key?(error[0]))
+      STDERR.puts sprintf(ERRMSG[error[0]], error[1].to_s)
+    else
+      STDERR.puts sprintf("ls: unknown error %s", error[1].to_s)
+    end
   end
 
 end
 
-# ----------------------------------------------------------------------
-
-
+#
+# メインルーチン
+#
 options, path_ary = args_parse
 files, dirs, errors = get_file_list(path_ary)
 
 # オプションの処理
 if (!options.include?("a"))
-  # dirs のファイル一覧からドットファイルを削除
-  dirs.each do |item|
-    item[1].delete_if { |item| item =~ /^\..*/}
+  # dirs 中のファイル一覧からドットファイルを削除
+  dirs.each do |d|
+    d[1].delete_if { |item| item =~ /^\..*/ }
   end
+  # ドットファイルに関するエラーを削除
+  errors.delete_if { |item| item[1] =~ /\/\..*$/ }
 end
 
 if (options.include?("r"))
@@ -416,23 +461,19 @@ if (options.include?("l"))
   printer = List_Printer.new
 end
 
-
-# 結果表示
-# 改善余地：結果表示のロジックが複雑なのは files, dirs, errors の持ち方に問題があるのでは？
-print_errors(errors.select { |e| e[0] == "e001" }.sort_by(&:last))
-print_errors(errors.select { |e| e[0] == "e004" }.sort_by(&:last))
+# 改善余地：以下の結果表示ロジックが複雑なのは files, dirs, errors の持ち方に問題があるのでは？
 print_errors(errors.select { |e| e[0] == "e002" })
+print_errors(errors.select { |e| e[0] == "e004" }.sort_by(&:last))
+print_errors(errors.select { |e| e[0] == "e001" }.sort_by(&:last))
 
 # ファイル一覧を処理
 if (files.length > 0)
   printer.print_files(files)
-
   # この後に表示するものがある場合改行する
   e003_ary = errors.select { |e| e[0] == "e003" }
   if (e003_ary.length > 0 || dirs.length > 0)
     puts ""
   end
-
 end
 
 # ファイル一覧に内容が無くパスとファイル一覧のセットが一個だけならそれをファイル一覧として処理
@@ -449,7 +490,7 @@ if !(dirs.length == 1 && files.length == 0 && errors.length == 0)
   if (dirs.length)
     dirs.each_with_index do |dir, i|
       puts "" if (i != 0)
-      puts dir[0].to_s + ":"
+      puts dir[0].to_s + ":" if (dirs.length > 1 || files.length > 0)
       printer.print_dirs(dir[0], dir[1])
     end
   end

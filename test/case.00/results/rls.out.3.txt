@@ -1,0 +1,36 @@
+-lra /boot
+total 212660
+-rwxr-xr-x  1 root root  6643904 May 15 06:28 vmlinuz-3.10.0-957.12.2.el7.x86_64
+-rwxr-xr-x  1 root root  6242208 Aug 15  2018 vmlinuz-3.10.0-862.11.6.el7.x86_64
+-rwxr-xr-x  1 root root  5156528 Nov 20  2015 vmlinuz-3.10.0-327.el7.x86_64
+-rwxr-xr-x  1 root root  5155536 Feb 17  2016 vmlinuz-3.10.0-327.10.1.el7.x86_64
+-rwxr-xr-x  1 root root  5156528 Mar 20  2016 vmlinuz-0-rescue-0d2ebd65d1366141a04fa1e07fd7a974
+-rw-r--r--  1 root root   314126 May 15 06:28 symvers-3.10.0-957.12.2.el7.x86_64.gz
+-rw-r--r--  1 root root   305158 Aug 15  2018 symvers-3.10.0-862.11.6.el7.x86_64.gz
+-rw-r--r--  1 root root   252612 Nov 20  2015 symvers-3.10.0-327.el7.x86_64.gz
+-rw-r--r--  1 root root   252630 Feb 17  2016 symvers-3.10.0-327.10.1.el7.x86_64.gz
+-rw-r--r--  1 root root   602646 Mar 20  2016 initrd-plymouth.img
+-rw-------  1 root root 25978609 May 23 21:23 initramfs-3.10.0-957.12.2.el7.x86_64.img
+-rw-------  1 root root 25949446 May 23 21:24 initramfs-3.10.0-862.11.6.el7.x86_64.img
+-rw-r--r--  1 root root 17125109 Mar 20  2016 initramfs-3.10.0-327.el7.x86_64kdump.img
+-rw-r--r--  1 root root 19270838 Mar 20  2016 initramfs-3.10.0-327.el7.x86_64.img
+-rw-r--r--  1 root root 17195379 Mar 21  2016 initramfs-3.10.0-327.10.1.el7.x86_64kdump.img
+-rw-------  1 root root 25586128 Sep 28  2018 initramfs-3.10.0-327.10.1.el7.x86_64.img
+-rw-r--r--  1 root root 43064005 Mar 20  2016 initramfs-0-rescue-0d2ebd65d1366141a04fa1e07fd7a974.img
+drwx------  5 root root     4096 May 23 21:23 grub2
+drwxr-xr-x  2 root root       26 Mar 20  2016 grub
+drwxr-xr-x  3 root root       16 Sep 28  2018 efi
+-rw-r--r--  1 root root   151923 May 15 06:28 config-3.10.0-957.12.2.el7.x86_64
+-rw-r--r--  1 root root   147859 Aug 15  2018 config-3.10.0-862.11.6.el7.x86_64
+-rw-r--r--  1 root root   126426 Nov 20  2015 config-3.10.0-327.el7.x86_64
+-rw-r--r--  1 root root   126431 Feb 17  2016 config-3.10.0-327.10.1.el7.x86_64
+-rw-------  1 root root  3545659 May 15 06:28 System.map-3.10.0-957.12.2.el7.x86_64
+-rw-------  1 root root  3414344 Aug 15  2018 System.map-3.10.0-862.11.6.el7.x86_64
+-rw-------  1 root root  2963044 Nov 20  2015 System.map-3.10.0-327.el7.x86_64
+-rw-------  1 root root  2963014 Feb 17  2016 System.map-3.10.0-327.10.1.el7.x86_64
+-rw-r--r--  1 root root      171 May 15 06:28 .vmlinuz-3.10.0-957.12.2.el7.x86_64.hmac
+-rw-r--r--  1 root root      171 Aug 15  2018 .vmlinuz-3.10.0-862.11.6.el7.x86_64.hmac
+-rw-r--r--  1 root root      166 Nov 20  2015 .vmlinuz-3.10.0-327.el7.x86_64.hmac
+-rw-r--r--  1 root root      171 Feb 17  2016 .vmlinuz-3.10.0-327.10.1.el7.x86_64.hmac
+dr-xr-xr-x 17 root root     4096 Sep 28  2018 ..
+dr-xr-xr-x  5 root root     4096 May 23 21:24 .

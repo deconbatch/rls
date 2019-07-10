@@ -1,0 +1,2 @@
+ dir.not.executable/file01
+ls: cannot access dir.not.executable/file01: Permission denied

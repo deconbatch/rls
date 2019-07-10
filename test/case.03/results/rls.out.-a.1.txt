@@ -1,0 +1,2 @@
+-a /bin/Xorg
+/bin/Xorg

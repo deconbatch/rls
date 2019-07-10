@@ -1,0 +1,2 @@
+-a test.case.03.sh/
+ls: cannot access test.case.03.sh/: Not a directory

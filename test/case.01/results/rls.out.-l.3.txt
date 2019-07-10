@@ -1,0 +1,2 @@
+-l test.case.01.sh
+-rwxrwxr-x 1 kat kat 346 Jul  9 22:45 test.case.01.sh

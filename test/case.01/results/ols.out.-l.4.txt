@@ -1,0 +1,7 @@
+-l dir01/*
+-rw-rw-r-- 1 kat kat 15 Jul  9 22:12 dir01/file0101
+-rw-rw-r-- 1 kat kat 15 Jul  9 22:12 dir01/file0102
+
+dir01/dir0101:
+total 0
+-rw-rw-r-- 1 kat kat 0 Jul  9 21:26 file01010101

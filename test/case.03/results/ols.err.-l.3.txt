@@ -1,0 +1,3 @@
+-l ./dir.not.executable
+ls: cannot access ./dir.not.executable/file01: Permission denied
+ls: cannot access ./dir.not.executable/file02: Permission denied

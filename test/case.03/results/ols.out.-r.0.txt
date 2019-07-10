@@ -1,0 +1,20 @@
+-r /
+var
+usr
+tmp
+sys
+srv
+sbin
+run
+root
+proc
+opt
+mnt
+media
+lib64
+lib
+home
+etc
+dev
+boot
+bin

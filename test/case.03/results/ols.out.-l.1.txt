@@ -1,0 +1,2 @@
+-l /bin/Xorg
+-rwsr-xr-x 1 root root 2447384 Mar 14 19:39 /bin/Xorg

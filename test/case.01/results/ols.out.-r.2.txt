@@ -1,0 +1,5 @@
+-r ../case.01/
+test.case.01.sh
+results
+dir02
+dir01

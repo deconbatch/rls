@@ -1,0 +1,6 @@
+-r dir01/*
+dir01/file0102
+dir01/file0101
+
+dir01/dir0101:
+file01010101

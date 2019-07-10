@@ -1,0 +1,7 @@
+-rwxr-xr-x 1 kat kat 690 Jul  9 23:12 test.case.02.sh
+-rw-rw-r-- 1 kat kat 947 Jul  9 23:01 test.case.02.sh~
+
+dir01:
+total 0
+-rw-rw-r-- 1 kat kat   0 Jul  9 23:11 file01
+drwxrwxr-x 2 kat kat 126 Jul  9 23:12 results

@@ -1,0 +1,5 @@
+--- results/ols.out.-l.9.txt	2019-07-11 00:39:36.480488597 +0900
++++ results/rls.out.-l.9.txt	2019-07-11 00:39:36.585491058 +0900
+@@ -2 +2 @@
+--rwxr-xr-x  1 kat  kat   501 Jul 10 23:56 test.case.03.sh
++-rwxr-xr-x 1 kat kat 501 Jul 10 23:56 test.case.03.sh

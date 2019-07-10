@@ -1,0 +1,114 @@
+1.一行で画面幅に収まるパターン	:case.05:
+
+test ls /usr
+bin  etc  games  include  lib  lib64  libexec  local  sbin  share  src	tmp
+
+test rls /usr
+bin  etc  games  include  lib  lib64  libexec  local  sbin  share  src  tmp
+
+
+2.複数行にわたるパターン  :case.05:
+
+test ls /usr
+bin  games    lib    libexec  sbin   src
+etc  include  lib64  local    share  tmp
+
+test rls /usr
+bin  games    lib    libexec  sbin   src
+etc  include  lib64  local    share  tmp
+
+
+3.同じパス指定で画面幅を変更して行数が変更になるパターン	:case.05:
+
+test ls /var
+adm    crash  empty  gopher    lib    lock  mail  opt	    run    tmp	yp
+cache  db     games  kerberos  local  log   nis   preserve  spool  www
+
+test rls /var
+adm    crash  empty  gopher    lib    lock  mail  opt       run    tmp  yp
+cache  db     games  kerberos  local  log   nis   preserve  spool  www
+
+test ls /var
+adm    db     gopher	local  mail  preserve  tmp
+cache  empty  kerberos	lock   nis   run       www
+crash  games  lib	log    opt   spool     yp
+
+test rls /var
+adm    db     gopher    local  mail  preserve  tmp
+cache  empty  kerberos  lock   nis   run       www
+crash  games  lib       log    opt   spool     yp 
+
+test ls /var
+adm    empty     lib    mail      run    yp
+cache  games     local  nis       spool
+crash  gopher    lock   opt       tmp
+db     kerberos  log    preserve  www
+
+test rls /var
+adm    empty     lib    mail      run    yp
+cache  games     local  nis       spool    
+crash  gopher    lock   opt       tmp      
+db     kerberos  log    preserve  www      
+
+
+4.最大ファイル名長が画面幅を超えるパターン :case.05:
+
+test ls /boot
+System.map-3.10.0-327.10.1.el7.x86_64
+System.map-3.10.0-327.el7.x86_64
+System.map-3.10.0-862.11.6.el7.x86_64
+System.map-3.10.0-957.12.2.el7.x86_64
+config-3.10.0-327.10.1.el7.x86_64
+config-3.10.0-327.el7.x86_64
+config-3.10.0-862.11.6.el7.x86_64
+config-3.10.0-957.12.2.el7.x86_64
+efi
+grub
+grub2
+initramfs-0-rescue-0d2ebd65d1366141a04fa1e07fd7a974.img
+initramfs-3.10.0-327.10.1.el7.x86_64.img
+initramfs-3.10.0-327.10.1.el7.x86_64kdump.img
+initramfs-3.10.0-327.el7.x86_64.img
+initramfs-3.10.0-327.el7.x86_64kdump.img
+initramfs-3.10.0-862.11.6.el7.x86_64.img
+initramfs-3.10.0-957.12.2.el7.x86_64.img
+initrd-plymouth.img
+symvers-3.10.0-327.10.1.el7.x86_64.gz
+symvers-3.10.0-327.el7.x86_64.gz
+symvers-3.10.0-862.11.6.el7.x86_64.gz
+symvers-3.10.0-957.12.2.el7.x86_64.gz
+vmlinuz-0-rescue-0d2ebd65d1366141a04fa1e07fd7a974
+vmlinuz-3.10.0-327.10.1.el7.x86_64
+vmlinuz-3.10.0-327.el7.x86_64
+vmlinuz-3.10.0-862.11.6.el7.x86_64
+vmlinuz-3.10.0-957.12.2.el7.x86_64
+
+test rls /boot
+System.map-3.10.0-327.10.1.el7.x86_64
+System.map-3.10.0-327.el7.x86_64
+System.map-3.10.0-862.11.6.el7.x86_64
+System.map-3.10.0-957.12.2.el7.x86_64
+config-3.10.0-327.10.1.el7.x86_64
+config-3.10.0-327.el7.x86_64
+config-3.10.0-862.11.6.el7.x86_64
+config-3.10.0-957.12.2.el7.x86_64
+efi
+grub
+grub2
+initramfs-0-rescue-0d2ebd65d1366141a04fa1e07fd7a974.img
+initramfs-3.10.0-327.10.1.el7.x86_64.img
+initramfs-3.10.0-327.10.1.el7.x86_64kdump.img
+initramfs-3.10.0-327.el7.x86_64.img
+initramfs-3.10.0-327.el7.x86_64kdump.img
+initramfs-3.10.0-862.11.6.el7.x86_64.img
+initramfs-3.10.0-957.12.2.el7.x86_64.img
+initrd-plymouth.img
+symvers-3.10.0-327.10.1.el7.x86_64.gz
+symvers-3.10.0-327.el7.x86_64.gz
+symvers-3.10.0-862.11.6.el7.x86_64.gz
+symvers-3.10.0-957.12.2.el7.x86_64.gz
+vmlinuz-0-rescue-0d2ebd65d1366141a04fa1e07fd7a974
+vmlinuz-3.10.0-327.10.1.el7.x86_64
+vmlinuz-3.10.0-327.el7.x86_64
+vmlinuz-3.10.0-862.11.6.el7.x86_64
+vmlinuz-3.10.0-957.12.2.el7.x86_64

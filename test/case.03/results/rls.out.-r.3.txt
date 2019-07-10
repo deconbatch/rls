@@ -1,0 +1,3 @@
+-r ./dir.not.executable
+file02
+file01

@@ -1,0 +1,5 @@
+-a ./dir.not.executable
+.
+..
+file01
+file02

@@ -1,0 +1,7 @@
+--- results/ols.err.-a.3.txt	2019-07-11 00:39:33.558420101 +0900
++++ results/rls.err.-a.3.txt	2019-07-11 00:39:33.665422609 +0900
+@@ -1,0 +2,4 @@
++ls: cannot access ./dir.not.executable/.: Permission denied
++ls: cannot access ./dir.not.executable/..: Permission denied
++ls: cannot access ./dir.not.executable/file01: Permission denied
++ls: cannot access ./dir.not.executable/file02: Permission denied

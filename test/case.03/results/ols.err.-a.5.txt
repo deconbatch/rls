@@ -1,0 +1,2 @@
+-a dir.not.readable/
+ls: cannot open directory dir.not.readable/: Permission denied

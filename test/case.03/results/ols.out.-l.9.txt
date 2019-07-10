@@ -1,0 +1,3 @@
+-l the.not.exist /root/not.exist not.exist test.case.03.sh/ /root /root/temp test.case.03.sh
+-rwxr-xr-x  1 kat  kat   501 Jul 10 23:56 test.case.03.sh
+

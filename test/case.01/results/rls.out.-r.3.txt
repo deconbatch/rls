@@ -1,0 +1,2 @@
+-r test.case.01.sh
+test.case.01.sh

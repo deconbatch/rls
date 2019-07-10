@@ -1,0 +1,7 @@
+-r the.not.exist /root/not.exist not.exist test.case.03.sh/ /root /root/temp test.case.03.sh
+ls: cannot access the.not.exist: No such file or directory
+ls: cannot access /root/not.exist: Permission denied
+ls: cannot access not.exist: No such file or directory
+ls: cannot access test.case.03.sh/: Not a directory
+ls: cannot access /root/temp: Permission denied
+ls: cannot open directory /root: Permission denied

@@ -1,0 +1,6 @@
+-l ../case.01/
+total 8
+drwxrwxr-x 3 kat kat   50 Jul  9 22:13 dir01
+drwxrwxr-x 2 kat kat    6 Jul  9 21:24 dir02
+drwxrwxr-x 2 kat kat 4096 Jul 11 00:39 results
+-rwxrwxr-x 1 kat kat  346 Jul  9 22:45 test.case.01.sh

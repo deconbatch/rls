@@ -1,0 +1,1 @@
+-l /dev/tty /dev/sda /run/systemd/initctl/fifo /dev/log /dev/core

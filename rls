@@ -70,7 +70,7 @@ class List_Printer
         len_size  = 1
 
         stats << {
-          type:  "-",
+          type:  "?",
           mode:  "?????????",
           nlink: "?",
           uname: "?",
@@ -217,12 +217,18 @@ class Column_Printer
   # @param [Array<String>]  files 表示対象ファイル
   def print_files(files)
     return nil if (files.length == 0)
+
     if (STDOUT.isatty)
       # 画面表示
-      to_display(files)
+      screen_width = `tput cols`.to_i
+      if (files.max_by{ |item| item.to_s.length }.length >= screen_width)
+        one_column(files)
+      else
+        mult_column(files, screen_width)
+      end
     else 
       # パイプやリダイレクト
-      to_file(files)
+      one_column(files)
     end
   end
 
@@ -235,13 +241,12 @@ class Column_Printer
 
   # ファイル一覧を画面幅に合わせたカラム数で表示
   # @param [Array<String>]  files 表示対象ファイル
-  def to_display(files)
+  def mult_column(files, screen_width)
 
-    # ターミナルの幅と最大長のファイル名を元に計算して出力
     # カラム間の空白は 2文字
-    screen_width = `tput cols`.to_i
     col_margin = 2
 
+    # ターミナルの幅と最大長のファイル名を元に計算して出力
     for rownum in  1..files.length do
 
       matrix = [] # Array<Array<String(カラム毎のファイル名の縦並び)>>
@@ -267,14 +272,14 @@ class Column_Printer
         
         break
       end
-      
+
     end
 
   end
 
-  # ファイル一覧をパイプやリダイレクトに 1カラムで表示
+  # ファイル一覧を 1カラムで表示
   # @param [Array<String>]  files 表示対象ファイル
-  def to_file(files)
+  def one_column(files)
     files.each do |f|
       puts f
     end
@@ -340,7 +345,7 @@ def get_file_list(path_ary)
 
       # 上位ディレクトリが展開不可ならアクセス不可エラー
       if(!prev_dir_executable)
-        errors << ["e001", path]
+        print_errors([["e001", path]])
         break
       end
 
@@ -356,14 +361,14 @@ def get_file_list(path_ary)
             symfile = true
           end
         rescue
-          errors << ["e002", path]
+          print_errors([["e002", path]])
           break
         end
       end
 
       if (pitem.file? || pitem.chardev? || pitem.blockdev? || pitem.pipe? || pitem.socket? || symfile)
         if (directory_path)
-          errors << ["e004", path]
+          print_errors([["e004", path]])
           break
         else
           files << path
@@ -381,7 +386,7 @@ def get_file_list(path_ary)
           dirs << [path, Dir.entries(path)]
           if (!pitem.executable?)
             Dir.entries(path).each do |item|
-              errors << ["e001", path + ((path[-1, 1] == "/") ? item.to_s : "/" + item.to_s)]
+              print_errors([["e001", path + ((path[-1, 1] == "/") ? item.to_s : "/" + item.to_s)]])
             end
           end
         end
@@ -390,7 +395,7 @@ def get_file_list(path_ary)
 
       # 存在チェック
       if (!pitem.file? && !pitem.directory? && !pitem.chardev? && !pitem.blockdev? && !pitem.pipe? && !pitem.socket? && !pitem.symlink?)
-        errors << ["e002", path]
+        print_errors([["e002", path]])
         break
       end
 
@@ -462,10 +467,6 @@ if (options.include?("l"))
 end
 
 # 改善余地：以下の結果表示ロジックが複雑なのは files, dirs, errors の持ち方に問題があるのでは？
-print_errors(errors.select { |e| e[0] == "e002" })
-print_errors(errors.select { |e| e[0] == "e004" }.sort_by(&:last))
-print_errors(errors.select { |e| e[0] == "e001" }.sort_by(&:last))
-
 # ファイル一覧を処理
 if (files.length > 0)
   printer.print_files(files)
@@ -482,8 +483,6 @@ if (dirs.length == 1 && files.length == 0 && errors.length == 0)
   printer.print_dirs(dirs[0][0], dirs[0][1])
 end
 
-print_errors(errors.select { |e| e[0] == "e003" }.sort_by(&:last))
-
 # パスとファイル一覧のセットが複数あればパスを表示してファイル一覧を処理をセット分繰り返す
 # dirs.length == 1 でも表示する
 if !(dirs.length == 1 && files.length == 0 && errors.length == 0)
@@ -495,5 +494,7 @@ if !(dirs.length == 1 && files.length == 0 && errors.length == 0)
     end
   end
 end
+
+print_errors(errors.select { |e| e[0] == "e003" }.sort_by(&:last))
 
 __END__

@@ -6,10 +6,19 @@
 #+OPTIONS: ^:nil
 #+OPTIONS: ^:{}
 
-* 実施結果概要
+* 実施結果報告
 ** 要件
    - 最新版の Ruby を用いて `ls` コマンドを作成すること。
    - オプションとして、最低限 `-a`, `-l`, `-r`を実装。`-al`や`-alr`などのように、組み合わされても使えるように。
+** 成果物
+   - doc
+     - YARD 形式ドキュメント
+   - test
+     - テスト用スクリプトとテスト結果
+   - README.org
+     - 本 Readme
+   - rls
+     - Ruby を用いた `ls` コマンド
 ** 開発環境
    - OS
      - CentOS Linux 7.6.1810
@@ -17,7 +26,7 @@
      - ruby 2.6.3p62
    - ls のリファレンス実装
      - GNU coreutils version.8.22-21
-** 実現不能だった事項
+** 気づいたものの実現不能だった事項
    - [ ] ロケール対応（メッセージ、日付フォーマット）
      - テストは LANG=C 固定で実施
    - [ ] ls -l の SELinux セキュリティコンテキスト表示（バーミッション直後のドット表示）
@@ -28,49 +37,59 @@
      : パーミッションの後のドット
      - セキュリティコンテキスト表示は無い前提でテストする
        - 参考：http://tkak.hatenablog.com/entry/2013/01/04/151248
+   - [ ] オリジナルの ls -l で同じファイルのカラム表示位置がずれる場合がある（テストケース case.03）
+     - 表示対象ではないファイルのユーザ名等の長さがカラム幅に反映されている？
+       : $ ls -l test.case.03.sh
+       : -rwxr-xr-x 1 dec dec 501 Jul 10 23:56 test.case.03.sh
+       : 
+       : $ ls -l test.case.03.sh /root
+       : -rwxr-xr-x  1 dec  dec   501 Jul 10 23:56 test.case.03.sh
+       : 
+       : ls: cannot open directory /root: Permission denied
+       : 
+       : $ ls -l test.case.03.sh /var/log/httpd/
+       : -rwxr-xr-x 1 dec  dec   501 Jul 10 23:56 test.case.03.sh
+       : 
+       : $ ls: cannot open directory /var/log/httpd/: Permission denied
+       : 
    - [ ] オリジナルの ls でパイプに通すとエラーメッセージが表示されなくなる場合がある（テストケース case.03）
-     : パイプに通すとエラーメッセージが表示されなくなる場合
-     : ls ./dir.not.executable/ 
-     : ls: cannot access ./dir.not.executable/file01: Permission denied
-     : ls: cannot access ./dir.not.executable/file02: Permission denied
-     : file01  file02
-     : 
-     : ls ./dir.not.executable/ | cat
-     : file01
-     : file02
-     : 
-     : 同じパスで -l を付けるとパイプに通しても表示される
-     : ls -l ./dir.not.executable/ 
-     : ls: cannot access ./dir.not.executable/file01: Permission denied
-     : ls: cannot access ./dir.not.executable/file02: Permission denied
-     : total 0
-     : ?????????? ? ? ? ?            ? file01
-     : ?????????? ? ? ? ?            ? file02
-     : 
-     : ls -l ./dir.not.executable/ | cat
-     : ls: cannot access ./dir.not.executable/file01: Permission denied
-     : ls: cannot access ./dir.not.executable/file02: Permission denied
-     : total 0
-     : ?????????? ? ? ? ?            ? file01
-     : ?????????? ? ? ? ?            ? file02
-     : 
-   - [ ] オリジナルの ls -l で表示対象ではないファイルのユーザ名等の長さがカラム幅に反映される？（テストケース case.03）
-     : $ ls -l test.case.03.sh
-     : -rwxr-xr-x 1 kat kat 501 Jul 10 23:56 test.case.03.sh
-     : 
-     : $ ls -l test.case.03.sh /root
-     : -rwxr-xr-x  1 kat  kat   501 Jul 10 23:56 test.case.03.sh
-     : 
-     : ls: cannot open directory /root: Permission denied
-     : 
-     : $ ls -l test.case.03.sh /var/log/httpd/
-     : -rwxr-xr-x 1 kat  kat   501 Jul 10 23:56 test.case.03.sh
-     : 
-     : $ ls: cannot open directory /var/log/httpd/: Permission denied
-     : 
-* ドキュメント
-  - doc/ ディレクトリに格納
-* テスト
+     - 実行権限無しディレクトリ中にあるファイルを対象としたエラーメッセージだけ？
+       : パイプに通すとエラーメッセージが表示されなくなる例
+       :
+       : $ ls ./dir.not.executable/ ./not.exist      
+       : ls: cannot access ./not.exist: No such file or directory
+       : ./dir.not.executable/:
+       : ls: cannot access ./dir.not.executable/file01: Permission denied
+       : ls: cannot access ./dir.not.executable/file02: Permission denied
+       : file01  file02
+       : 
+       : $ ls ./dir.not.executable/ ./not.exist | cat
+       : ls: cannot access ./not.exist: No such file or directory
+       : ./dir.not.executable/:
+       : file01
+       : file02
+       : 
+       : 同じパスで -l を付けるとパイプに通しても全てのエラーメッセージが表示される
+       : 
+       : $ ls -l ./dir.not.executable/ ./not.exist      
+       : ls: cannot access ./not.exist: No such file or directory
+       : ./dir.not.executable/:
+       : ls: cannot access ./dir.not.executable/file01: Permission denied
+       : ls: cannot access ./dir.not.executable/file02: Permission denied
+       : total 0
+       : ?????????? ? ? ? ?            ? file01
+       : ?????????? ? ? ? ?            ? file02
+       : 
+       : $ ls -l ./dir.not.executable/ ./not.exist | cat
+       : ls: cannot access ./not.exist: No such file or directory
+       : ls: cannot access ./dir.not.executable/file01: Permission denied
+       : ls: cannot access ./dir.not.executable/file02: Permission denied
+       : ./dir.not.executable/:
+       : total 0
+       : ?????????? ? ? ? ?            ? file01
+       : ?????????? ? ? ? ?            ? file02
+       : 
+* テスト詳細
   - 思いついたケースを試してみたレベルです。プロダクションレベルのテストは実施できておりません。
 ** テストケース
 *** オプションのパース
@@ -120,9 +139,9 @@
     - [X] パスに指定したディレクトリに読み込み権限が無い場合の cannot open directory Permission denied エラー	:case.03:
     - [X] 存在するファイルと同名のパスを / 付きで指定した際の cannot access Not a directory エラー	:case.03:
 ** テスト結果
-*** 概要
+*** 概要説明
     - test/ ディレクトリ以下にテストケース毎に別ディレクトリで格納
-    - ls と rls の結果の diff を取るシェルスクリプトを作成して実行
+    - ls と rls の結果の diff を取るシェルスクリプトを作成し、diff の結果が無いことをテスト OK とする。
       - test.case.nn.sh テスト実行シェルスクリプト
       - results/
 	- dif.err.* 標準エラー出力の差異
@@ -456,6 +475,8 @@
    - 4h テスト実施、バグ対応
    - 1h README 整理
    - 1h ドキュメント作成
+** 19/07/11
+   - 1h README 整理
 * 参考
 ** ls仕様
    - GNU coreutils ソース

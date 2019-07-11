@@ -2,5 +2,5 @@
 lrwxrwxrwx 1 root root   11 Jul  3 19:05 /dev/core -> /proc/kcore
 srw-rw-rw- 1 root root    0 Jul  3 19:05 /dev/log
 brw-rw---- 1 root disk 8, 0 Jul  3 19:06 /dev/sda
-crw-rw-rw- 1 root tty  5, 0 Jul 11 00:15 /dev/tty
+crw-rw-rw- 1 root tty  5, 0 Jul 12 00:49 /dev/tty
 prw------- 1 root root    0 Jul  3 19:05 /run/systemd/initctl/fifo

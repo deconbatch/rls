@@ -94,7 +94,6 @@ class List_Printer
       end
 
       block_total += stat.blocks
-
       f_type = (FTYPE.has_key?(File.ftype(f))) ? FTYPE[File.ftype(f)] : " "
 
       f_mode = FMODE[stat.mode.to_s(8)[-3, 1]] + FMODE[stat.mode.to_s(8)[-2, 1]] + FMODE[stat.mode.to_s(8)[-1, 1]]
@@ -113,6 +112,7 @@ class List_Printer
       f_nlink = stat.nlink
       f_uname = Etc.getpwuid(stat.uid).name
       f_gname = Etc.getgrgid(stat.gid).name
+
       f_size  = ""
       f_major = ""
       f_minor = ""
@@ -156,9 +156,11 @@ class List_Printer
     puts sprintf("total %d", (block_total / 2).to_i) if (dir != "")
     stats.each do |s|
       if (s[:size] == "")
+        # キャラクタデバイス、ブロックデバイスの表示
         puts sprintf("%s%s %*s %-*s %-*s %*s, %*s %s %s",
                      s[:type], s[:mode], len_nlink, s[:nlink], len_uname, s[:uname], len_gname, s[:gname], len_major, s[:major], len_minor, s[:minor], s[:date], s[:name])
       else
+        # その他の表示
         puts sprintf("%s%s %*s %-*s %-*s %*s %s %s",
                      s[:type], s[:mode], len_nlink, s[:nlink], len_uname, s[:uname], len_gname, s[:gname], len_size, s[:size], s[:date], s[:name])
       end
@@ -295,7 +297,6 @@ def args_parse
   paths   = []
   end_option = false
 
-#  for arg in ARGV
   ARGV.each do |arg|
     if (arg.to_s == "--")
       end_option = true
@@ -366,6 +367,7 @@ def get_file_list(path_ary)
         end
       end
 
+      # ファイルの場合
       if (pitem.file? || pitem.chardev? || pitem.blockdev? || pitem.pipe? || pitem.socket? || symfile)
         if (directory_path)
           print_errors([["e004", path]])
@@ -376,6 +378,7 @@ def get_file_list(path_ary)
         end
       end
       
+      # ディレクトリの場合
       if (pitem.directory? || symdir)
         # 最下位のディレクトリ？
         if (pitem.eql?(pname))
@@ -484,7 +487,6 @@ if (dirs.length == 1 && files.length == 0 && errors.length == 0)
 end
 
 # パスとファイル一覧のセットが複数あればパスを表示してファイル一覧を処理をセット分繰り返す
-# dirs.length == 1 でも表示する
 if !(dirs.length == 1 && files.length == 0 && errors.length == 0)
   if (dirs.length)
     dirs.each_with_index do |dir, i|

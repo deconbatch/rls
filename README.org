@@ -476,7 +476,7 @@
    - 1h README 整理
    - 1h ドキュメント作成
 ** 19/07/11
-   - 1h README 整理
+   - 1h README 整理、rls リファクタリング
 * 参考
 ** ls仕様
    - GNU coreutils ソース
